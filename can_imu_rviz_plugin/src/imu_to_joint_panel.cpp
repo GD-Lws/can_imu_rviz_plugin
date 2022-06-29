@@ -31,11 +31,11 @@ namespace imu_to_joint_rviz_plugin {
     }
 
 
-    void ImuToJointPanel::euler_callback(const can_imu_lws::IMU_Euler &euler_msg){
-        ROS_INFO("can_id: %d", euler_msg.imu_can_id);
-        ROS_INFO("Roll: %d", euler_msg.Roll);
-        ROS_INFO("Pitch: %d", euler_msg.Pitch);
-        ROS_INFO("Yaw: %d", euler_msg.Yaw);
+    void ImuToJointPanel::euler_callback(const can_imu_lws::IMU_Euler_msgPtr &euler_msg){
+        ROS_INFO("can_id: %d", euler_msg->imu_can_id);
+        ROS_INFO("Roll: %d", euler_msg->Roll);
+        ROS_INFO("Pitch: %d", euler_msg->Pitch);
+        ROS_INFO("Yaw: %d", euler_msg->Yaw);
     }
 
 } // end namespace navi-multi-goals-pub-rviz-plugin

@@ -35,7 +35,7 @@ namespace imu_to_joint_rviz_plugin {
     public Q_SLOTS:
 
     protected Q_SLOTS:
-    void euler_callback(const can_imu_lws::IMU_Euler &euler_msg);
+    void euler_callback(const can_imu_lws::IMU_Euler_msgPtr &euler_msg);
 
        
     protected:
