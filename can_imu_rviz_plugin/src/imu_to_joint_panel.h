@@ -21,6 +21,9 @@
 #include <actionlib_msgs/GoalStatus.h>
 #include <actionlib_msgs/GoalStatusArray.h>
 #include <tf/transform_datatypes.h>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/JointState.h>
+#include <can_imu_lws/IMU_Euler_msg.h>
 
 
 namespace imu_to_joint_rviz_plugin {
@@ -32,9 +35,13 @@ namespace imu_to_joint_rviz_plugin {
     public Q_SLOTS:
 
     protected Q_SLOTS:
+    void euler_callback(const can_imu_lws::IMU_Euler &euler_msg);
 
        
     protected:
+        ros::NodeHandle nh_;
+        ros::Publisher pub_joint_state_;
+        ros::Subscriber sub_imu_msg_;
        
     };
 
