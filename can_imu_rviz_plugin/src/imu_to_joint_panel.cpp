@@ -21,8 +21,9 @@ namespace imu_to_joint_rviz_plugin {
     ImuToJointPanel::ImuToJointPanel(QWidget *parent)
             : rviz::Panel(parent),nh_(){
         pub_joint_state_ = nh_.advertise<sensor_msgs::JointState>("joint_states",1);
-        sub_imu_msg_ = nh_.subscribe<can_imu_lws::IMU_Euler>("imu_euler_pub",1,
-                                    boost::bind(ImuToJointPanel::euler_callback, this, _1));
+        sub_imu_msg_ = nh_.subscribe<can_imu_lws::IMU_Euler_msg>("imu_euler_pub",1,
+                                    boost::bind(&ImuToJointPanel::euler_callback, this, _1));
+                                    
         QVBoxLayout *layout_root = new QVBoxLayout;
         layout_root->addWidget(new QLabel("imu_msg_to_joint_state"));
         QPushButton *button_init = new QPushButton("IMU_msg_init");
@@ -31,7 +32,7 @@ namespace imu_to_joint_rviz_plugin {
     }
 
 
-    void ImuToJointPanel::euler_callback(const can_imu_lws::IMU_Euler_msgPtr &euler_msg){
+    void ImuToJointPanel::euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg){
         ROS_INFO("can_id: %d", euler_msg->imu_can_id);
         ROS_INFO("Roll: %d", euler_msg->Roll);
         ROS_INFO("Pitch: %d", euler_msg->Pitch);
