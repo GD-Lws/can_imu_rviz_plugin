@@ -1,6 +1,6 @@
 <library path="lib/libcan_imu_rviz_plugin">
-    <class name="navi_multi_goals_pub_rviz_plugin/ImuToJointPanel"
-           type="navi_multi_goals_pub_rviz_plugin::ImuToJointPanel"
+    <class name="imu_to_joint_rviz_plugin/ImuToJointPanel"
+           type="imu_to_joint_rviz_plugin::ImuToJointPanel"
            base_class_type="rviz::Panel">
         <description>A panel widget allowing multi-goals navigation.</description>
     </class>
