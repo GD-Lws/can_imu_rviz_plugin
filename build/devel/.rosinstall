@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/lws/catkin_ws/src/can_imu_rviz_plugin/build/devel/setup.sh
