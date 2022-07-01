@@ -35,14 +35,13 @@ namespace imu_to_joint_rviz_plugin {
     public Q_SLOTS:
 
     protected Q_SLOTS:
-    void euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg);
-
+        void euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg);
+        static void startSpin(); // spin for sub
        
     protected:
         ros::NodeHandle nh_;
         ros::Publisher pub_joint_state_;
         ros::Subscriber sub_imu_msg_;
-       
     };
 
 } // end namespace navi-multi-goals-pub-rviz-plugin
