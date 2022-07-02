@@ -198,7 +198,7 @@ namespace imu_to_joint_rviz_plugin {
         if (editor_origin_imu->text() != "")
         {
             int set_origin_imu_id = editor_origin_imu->text().toInt();
-            if (can_id_array[set_origin_imu_id - 80] != 0){origin_imu_id = set_origin_imu_id;imu_status_array[0] = 1;
+            if (set_origin_imu_id - 80 >= 0 && can_id_array[set_origin_imu_id - 80] != 0){origin_imu_id = set_origin_imu_id;imu_status_array[0] = 1;
             ROS_INFO("Set origin imu id ");
             }
             else {ROS_ERROR("Set_origin_id Error!");imu_status_array[0] = 0;}         
@@ -206,25 +206,25 @@ namespace imu_to_joint_rviz_plugin {
         else if (editor_right_thigh_imu->text() != "")
         {
             int set_right_thigh_imu_id = editor_right_thigh_imu->text().toInt();
-            if (can_id_array[set_right_thigh_imu_id - 80] != 0){right_thigh_id = set_right_thigh_imu_id;imu_status_array[1] = 1;}
+            if (set_right_thigh_imu_id - 80 >= 0 && can_id_array[set_right_thigh_imu_id - 80] != 0){right_thigh_id = set_right_thigh_imu_id;imu_status_array[1] = 1;}
             else {ROS_ERROR("Set_right_thigh_id Error!");imu_status_array[1] = 0;}
         }
         else if (editor_left_thigh_imu->text() != "")
         {
             int set_left_thigh_imu_id = editor_left_thigh_imu->text().toInt();
-            if (can_id_array[set_left_thigh_imu_id - 80] != 0){left_thigh_id = set_left_thigh_imu_id;imu_status_array[2] = 1;}
+            if (set_left_thigh_imu_id - 80 >= 0 && can_id_array[set_left_thigh_imu_id - 80] != 0){left_thigh_id = set_left_thigh_imu_id;imu_status_array[2] = 1;}
             else {ROS_ERROR("Set_left_thigh_id Error!");imu_status_array[2] = 0;}
         }
         else if (editor_right_shank_imu->text() != "")
         {
             int set_right_shank_imu_id = editor_right_shank_imu->text().toInt();
-            if (can_id_array[set_right_shank_imu_id - 80] != 0){right_shank_id = set_right_shank_imu_id;imu_status_array[3] = 1;}
+            if (set_right_shank_imu_id - 80 >= 0 && can_id_array[set_right_shank_imu_id - 80] != 0){right_shank_id = set_right_shank_imu_id;imu_status_array[3] = 1;}
             else {ROS_ERROR("Set_right_shank_id Error!");imu_status_array[3] = 0;}
         }
         else if (editor_left_shank_imu->text() != "")
         {
             int set_left_shank_imu_id = editor_left_shank_imu->text().toInt();
-            if (can_id_array[set_left_shank_imu_id - 80] != 0){left_shank_id = set_left_shank_imu_id;imu_status_array[4] = 1;}
+            if (set_left_shank_imu_id - 80 >= 0 && can_id_array[set_left_shank_imu_id - 80] != 0){left_shank_id = set_left_shank_imu_id;imu_status_array[4] = 1;}
             else {ROS_ERROR("Set_left_shank_id Error!");imu_status_array[4] = 0;}
         }
         else{

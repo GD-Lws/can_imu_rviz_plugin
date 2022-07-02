@@ -56,7 +56,7 @@ namespace imu_to_joint_rviz_plugin {
         // Y R P r_hip,l_hip,r_knee,l_knee
         float joint_position_euler_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         float joint_position_offset_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        int origin_imu_id = 0x50, right_thigh_id = 0x50, left_thigh_id = 0x50, right_shank_id = 0x50, left_shank_id = 0x50;
+        int origin_imu_id = 79, right_thigh_id = 79, left_thigh_id = 79, right_shank_id = 79, left_shank_id = 79;
         std::string joint_name_array[12] = {"r_hip_yaw_joint", "r_hip_roll_joint", "r_hip_pitch_joint",
                             "r_knee_pitch_joint",
                             "r_ankle_pitch_joint", "r_ankle_roll_joint",
