@@ -228,12 +228,12 @@ namespace imu_to_joint_rviz_plugin {
             else {ROS_ERROR("Set_left_shank_id Error!");imu_status_array[4] = 0;}
         }
         else{
-            ROS_WARN("IMU_ID_SET_EDITOR_IS_NULL");
+            ROS_ERROR("IMU_ID_SET_EDITOR_IS_NULL");
         }
-        ROS_INFO("Set_origin_id: %d, Set_Right_thingh_id: %d, Set_left_thingh_id: %d",origin_imu_id,right_thigh_id,left_thigh_id);
-        ROS_INFO("Set_right_shank_id: %d, Set_left_shank_id: %d \n",right_shank_id,left_shank_id);
-        ROS_INFO("Status_origin_id: %d, Status_Right_thingh_id: %d, Status_left_thingh_id: %d",imu_status_array[0],imu_status_array[1],imu_status_array[2]);
-        ROS_INFO("Status_right_shank_id: %d, Status_left_shank_id: %d",imu_status_array[3],imu_status_array[4]);
+        ROS_WARN("Set_origin_id: %d, Set_Right_thingh_id: %d, Set_left_thingh_id: %d",origin_imu_id,right_thigh_id,left_thigh_id);
+        ROS_WARN("Set_right_shank_id: %d, Set_left_shank_id: %d \n",right_shank_id,left_shank_id);
+        ROS_WARN("Status_origin_id: %d, Status_Right_thingh_id: %d, Status_left_thingh_id: %d",imu_status_array[0],imu_status_array[1],imu_status_array[2]);
+        ROS_WARN("Status_right_shank_id: %d, Status_left_shank_id: %d",imu_status_array[3],imu_status_array[4]);
     }
 
     void ImuToJointPanel::set_joint_offset(){
