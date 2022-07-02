@@ -132,34 +132,34 @@ namespace imu_to_joint_rviz_plugin {
         if (imu_status_array[0] == 1 && imu_status_array [1] == 1)
         {
             joint_position_euler_array[0] = imu_current_list[3] - imu_current_list[0] - joint_position_offset_array[0];
-            joint_position_euler_array[1] = imu_current_list[4] - imu_current_list[1] - joint_position_offset_array[1]; 
-            joint_position_euler_array[2] = imu_current_list[5] - imu_current_list[2] - joint_position_offset_array[2];
-            ROS_INFO("r_hip euler:%d , %d, %d ",joint_position_euler_array[0], joint_position_euler_array[1], joint_position_euler_array[2]);
+            joint_position_euler_array[2] = imu_current_list[4] - imu_current_list[1] - joint_position_offset_array[1]; 
+            joint_position_euler_array[1] = imu_current_list[5] - imu_current_list[2] - joint_position_offset_array[2];
+            ROS_INFO("r_hip euler:%f , %f, %f ",joint_position_euler_array[0], joint_position_euler_array[1], joint_position_euler_array[2]);
         }
         // origin and left_thigh -> l_hip
-        else if (imu_status_array[0] == 1 && imu_status_array[2] == 1)
+        if (imu_status_array[0] == 1 && imu_status_array[2] == 1)
         {
             joint_position_euler_array[6] = imu_current_list[6] - imu_current_list[0] - joint_position_offset_array[3];
-            joint_position_euler_array[7] = imu_current_list[7] - imu_current_list[1] - joint_position_offset_array[4]; 
-            joint_position_euler_array[8] = imu_current_list[8] - imu_current_list[2] - joint_position_offset_array[5];
-            ROS_INFO("l_hip offset:%d , %d, %d ",joint_position_euler_array[6], joint_position_euler_array[7], joint_position_euler_array[8]);
+            joint_position_euler_array[8] = imu_current_list[7] - imu_current_list[1] - joint_position_offset_array[4]; 
+            joint_position_euler_array[7] = imu_current_list[8] - imu_current_list[2] - joint_position_offset_array[5];
+            ROS_INFO("l_hip euler:%f , %f, %f ",joint_position_euler_array[6], joint_position_euler_array[7], joint_position_euler_array[8]);
         }
         // right_thigh and right_shank -> r_knee
-        else if (imu_status_array[1] == 1 && imu_status_array[3] == 1)
+        if (imu_status_array[1] == 1 && imu_status_array[3] == 1)
         {
             joint_position_euler_array[3] = imu_current_list[9] - imu_current_list[3] - joint_position_offset_array[6];
             joint_position_euler_array[4] = imu_current_list[10] - imu_current_list[4] - joint_position_offset_array[7]; 
             joint_position_euler_array[5] = imu_current_list[11] - imu_current_list[5] - joint_position_offset_array[8];
-            ROS_INFO("r_knee offset:%d , %d, %d ",joint_position_euler_array[3], joint_position_euler_array[4], joint_position_euler_array[5]);
+            ROS_INFO("r_knee euler:%f , %f, %f ",joint_position_euler_array[3], joint_position_euler_array[4], joint_position_euler_array[5]);
 
         }
         // left_thigh and left_shank -> l_knee
-        else if (imu_status_array[2] == 1 && imu_status_array[4] == 1)
+        if (imu_status_array[2] == 1 && imu_status_array[4] == 1)
         {
             joint_position_euler_array[9] = imu_current_list[12] - imu_current_list[6] - joint_position_offset_array[9] ;
             joint_position_euler_array[10] = imu_current_list[13] - imu_current_list[7] - joint_position_offset_array[10]; 
             joint_position_euler_array[11] = imu_current_list[14] - imu_current_list[8] - joint_position_offset_array[11];
-            ROS_INFO("l_knee offset:%d , %d, %d ",joint_position_euler_array[9], joint_position_euler_array[10], joint_position_euler_array[11]);
+            ROS_INFO("l_knee euler:%f , %f, %f ",joint_position_euler_array[9], joint_position_euler_array[10], joint_position_euler_array[11]);
         }
         for(int i = 0; i < 12; i++){
             joint_state_msg.position[i] = euler_to_radian(joint_position_euler_array[i]);
@@ -195,45 +195,61 @@ namespace imu_to_joint_rviz_plugin {
     void ImuToJointPanel::imu_id_set()
     {
          ROS_INFO("imu_id_set");
+         bool flag_have_text = false;
         if (editor_origin_imu->text() != "")
         {
             int set_origin_imu_id = editor_origin_imu->text().toInt();
-            if (set_origin_imu_id - 80 >= 0 && can_id_array[set_origin_imu_id - 80] != 0){origin_imu_id = set_origin_imu_id;imu_status_array[0] = 1;
-            ROS_INFO("Set origin imu id ");
+            if (set_origin_imu_id - 80 >= 0 && can_id_array[set_origin_imu_id - 80] != 0){
+                origin_imu_id = set_origin_imu_id;imu_status_array[0] = 1;
+                ROS_INFO("Set origin imu id ");
+                flag_have_text = true;
             }
             else {ROS_ERROR("Set_origin_id Error!");imu_status_array[0] = 0;}         
         }
-        else if (editor_right_thigh_imu->text() != "")
+        if (editor_right_thigh_imu->text() != "")
         {
             int set_right_thigh_imu_id = editor_right_thigh_imu->text().toInt();
-            if (set_right_thigh_imu_id - 80 >= 0 && can_id_array[set_right_thigh_imu_id - 80] != 0){right_thigh_id = set_right_thigh_imu_id;imu_status_array[1] = 1;}
+            if (set_right_thigh_imu_id - 80 >= 0 && can_id_array[set_right_thigh_imu_id - 80] != 0){
+                right_thigh_id = set_right_thigh_imu_id;
+                imu_status_array[1] = 1;
+                flag_have_text = true;
+                }
             else {ROS_ERROR("Set_right_thigh_id Error!");imu_status_array[1] = 0;}
         }
-        else if (editor_left_thigh_imu->text() != "")
+        if (editor_left_thigh_imu->text() != "")
         {
             int set_left_thigh_imu_id = editor_left_thigh_imu->text().toInt();
-            if (set_left_thigh_imu_id - 80 >= 0 && can_id_array[set_left_thigh_imu_id - 80] != 0){left_thigh_id = set_left_thigh_imu_id;imu_status_array[2] = 1;}
+            if (set_left_thigh_imu_id - 80 >= 0 && can_id_array[set_left_thigh_imu_id - 80] != 0){
+                left_thigh_id = set_left_thigh_imu_id;
+                imu_status_array[2] = 1;
+                flag_have_text = true;
+                }
             else {ROS_ERROR("Set_left_thigh_id Error!");imu_status_array[2] = 0;}
         }
-        else if (editor_right_shank_imu->text() != "")
+        if (editor_right_shank_imu->text() != "")
         {
             int set_right_shank_imu_id = editor_right_shank_imu->text().toInt();
-            if (set_right_shank_imu_id - 80 >= 0 && can_id_array[set_right_shank_imu_id - 80] != 0){right_shank_id = set_right_shank_imu_id;imu_status_array[3] = 1;}
+            if (set_right_shank_imu_id - 80 >= 0 && can_id_array[set_right_shank_imu_id - 80] != 0){
+                right_shank_id = set_right_shank_imu_id;
+                imu_status_array[3] = 1;
+                flag_have_text = true;
+                }
             else {ROS_ERROR("Set_right_shank_id Error!");imu_status_array[3] = 0;}
         }
-        else if (editor_left_shank_imu->text() != "")
+        if (editor_left_shank_imu->text() != "")
         {
             int set_left_shank_imu_id = editor_left_shank_imu->text().toInt();
             if (set_left_shank_imu_id - 80 >= 0 && can_id_array[set_left_shank_imu_id - 80] != 0){left_shank_id = set_left_shank_imu_id;imu_status_array[4] = 1;}
             else {ROS_ERROR("Set_left_shank_id Error!");imu_status_array[4] = 0;}
         }
-        else{
+        if(flag_have_text == false){
             ROS_ERROR("IMU_ID_SET_EDITOR_IS_NULL");
+        }else{
+            ROS_WARN("Set_origin_id: %d, Set_Right_thingh_id: %d, Set_left_thingh_id: %d",origin_imu_id,right_thigh_id,left_thigh_id);
+            ROS_WARN("Set_right_shank_id: %d, Set_left_shank_id: %d \n",right_shank_id,left_shank_id);
+            ROS_WARN("Status_origin_id: %d, Status_Right_thingh_id: %d, Status_left_thingh_id: %d",imu_status_array[0],imu_status_array[1],imu_status_array[2]);
+            ROS_WARN("Status_right_shank_id: %d, Status_left_shank_id: %d",imu_status_array[3],imu_status_array[4]);
         }
-        ROS_WARN("Set_origin_id: %d, Set_Right_thingh_id: %d, Set_left_thingh_id: %d",origin_imu_id,right_thigh_id,left_thigh_id);
-        ROS_WARN("Set_right_shank_id: %d, Set_left_shank_id: %d \n",right_shank_id,left_shank_id);
-        ROS_WARN("Status_origin_id: %d, Status_Right_thingh_id: %d, Status_left_thingh_id: %d",imu_status_array[0],imu_status_array[1],imu_status_array[2]);
-        ROS_WARN("Status_right_shank_id: %d, Status_left_shank_id: %d",imu_status_array[3],imu_status_array[4]);
     }
 
     void ImuToJointPanel::set_joint_offset(){
@@ -243,7 +259,7 @@ namespace imu_to_joint_rviz_plugin {
             joint_position_offset_array[0] = imu_current_list[3] - imu_current_list[0];
             joint_position_offset_array[1] = imu_current_list[4] - imu_current_list[1]; 
             joint_position_offset_array[2] = imu_current_list[5] - imu_current_list[2];
-            ROS_INFO("r_hip offset:%d , %d, %d ",joint_position_offset_array[0], joint_position_offset_array[1], joint_position_offset_array[2]);
+            ROS_WARN("r_hip offset:%f , %f, %f ",joint_position_offset_array[0], joint_position_offset_array[1], joint_position_offset_array[2]);
         }
         // origin and left_thigh -> l_hip
         else if (imu_status_array[0] == 1 && imu_status_array[2] == 1)
@@ -251,7 +267,7 @@ namespace imu_to_joint_rviz_plugin {
             joint_position_offset_array[3] = imu_current_list[6] - imu_current_list[0];
             joint_position_offset_array[4] = imu_current_list[7] - imu_current_list[1]; 
             joint_position_offset_array[5] = imu_current_list[8] - imu_current_list[2];
-            ROS_INFO("l_hip offset:%d , %d, %d ",joint_position_offset_array[3], joint_position_offset_array[4], joint_position_offset_array[5]);
+            ROS_WARN("l_hip offset:%f , %f, %f ",joint_position_offset_array[3], joint_position_offset_array[4], joint_position_offset_array[5]);
         }
         // right_thigh and right_shank -> r_knee
         else if (imu_status_array[1] == 1 && imu_status_array[3] == 1)
@@ -259,7 +275,7 @@ namespace imu_to_joint_rviz_plugin {
             joint_position_offset_array[6] = imu_current_list[9] - imu_current_list[3];
             joint_position_offset_array[7] = imu_current_list[10] - imu_current_list[4]; 
             joint_position_offset_array[8] = imu_current_list[11] - imu_current_list[5];
-            ROS_INFO("r_knee offset:%d , %d, %d ",joint_position_offset_array[6], joint_position_offset_array[7], joint_position_offset_array[8]);
+            ROS_WARN("r_knee offset:%f , %f, %f ",joint_position_offset_array[6], joint_position_offset_array[7], joint_position_offset_array[8]);
 
         }
         // left_thigh and left_shank -> l_knee
@@ -268,7 +284,7 @@ namespace imu_to_joint_rviz_plugin {
             joint_position_offset_array[9] = imu_current_list[12] - imu_current_list[6];
             joint_position_offset_array[10] = imu_current_list[13] - imu_current_list[7]; 
             joint_position_offset_array[11] = imu_current_list[14] - imu_current_list[8];
-            ROS_INFO("l_knee offset:%d , %d, %d ",joint_position_offset_array[9], joint_position_offset_array[10], joint_position_offset_array[11]);
+            ROS_WARN("l_knee offset:%f , %f, %f ",joint_position_offset_array[9], joint_position_offset_array[10], joint_position_offset_array[11]);
         }
         
         
