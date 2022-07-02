@@ -107,10 +107,14 @@ namespace imu_to_joint_rviz_plugin {
     {
         sensor_msgs::JointState joint_state_msg;
         joint_state_msg.header.stamp = ros::Time::now();
-        joint_state_msg.header.frame_id = "";
-        for (int i = 0; i < 12; i++){
-            joint_state_msg.name[i] = joint_name_array[i];
-        }
+        joint_state_msg.header.frame_id = "test";
+        joint_state_msg.name = {"r_hip_yaw_joint", "r_hip_roll_joint", "r_hip_pitch_joint",
+                            "r_knee_pitch_joint",
+                            "r_ankle_pitch_joint", "r_ankle_roll_joint",
+                            "l_hip_yaw_joint", "l_hip_roll_joint", "l_hip_pitch_joint",
+                            "l_knee_pitch_joint",
+                            "l_ankle_pitch_joint", "l_ankle_roll_joint"};
+        joint_state_msg.position = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         if(flag_just_test == false){set_joint_state(joint_state_msg);}
         else{test_joint_state(joint_state_msg);}
         pub_joint_state_.publish(joint_state_msg);
