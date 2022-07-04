@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_imu_to_joint_rviz_plugin__ImuToJointPanel_t {
-    QByteArrayData data[10];
-    char stringdata0[165];
+    QByteArrayData data[17];
+    char stringdata0[282];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -39,14 +39,25 @@ QT_MOC_LITERAL(4, 95, 9), // "euler_msg"
 QT_MOC_LITERAL(5, 105, 10), // "imu_id_set"
 QT_MOC_LITERAL(6, 116, 9), // "startSpin"
 QT_MOC_LITERAL(7, 126, 16), // "set_joint_offset"
-QT_MOC_LITERAL(8, 143, 15), // "euler_to_radian"
-QT_MOC_LITERAL(9, 159, 5) // "euler"
+QT_MOC_LITERAL(8, 143, 15), // "set_joint_state"
+QT_MOC_LITERAL(9, 159, 24), // "sensor_msgs::JointState&"
+QT_MOC_LITERAL(10, 184, 15), // "joint_state_msg"
+QT_MOC_LITERAL(11, 200, 16), // "test_joint_state"
+QT_MOC_LITERAL(12, 217, 16), // "imu_start_listen"
+QT_MOC_LITERAL(13, 234, 15), // "joint_state_pub"
+QT_MOC_LITERAL(14, 250, 15), // "euler_to_radian"
+QT_MOC_LITERAL(15, 266, 5), // "euler"
+QT_MOC_LITERAL(16, 272, 9) // "checkTest"
 
     },
     "imu_to_joint_rviz_plugin::ImuToJointPanel\0"
     "euler_callback\0\0can_imu_lws::IMU_Euler_msg::ConstPtr\0"
     "euler_msg\0imu_id_set\0startSpin\0"
-    "set_joint_offset\0euler_to_radian\0euler"
+    "set_joint_offset\0set_joint_state\0"
+    "sensor_msgs::JointState&\0joint_state_msg\0"
+    "test_joint_state\0imu_start_listen\0"
+    "joint_state_pub\0euler_to_radian\0euler\0"
+    "checkTest"
 };
 #undef QT_MOC_LITERAL
 
@@ -56,7 +67,7 @@ static const uint qt_meta_data_imu_to_joint_rviz_plugin__ImuToJointPanel[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+      10,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -64,18 +75,28 @@ static const uint qt_meta_data_imu_to_joint_rviz_plugin__ImuToJointPanel[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   39,    2, 0x09 /* Protected */,
-       5,    0,   42,    2, 0x09 /* Protected */,
-       6,    0,   43,    2, 0x09 /* Protected */,
-       7,    0,   44,    2, 0x09 /* Protected */,
-       8,    1,   45,    2, 0x09 /* Protected */,
+       1,    1,   64,    2, 0x09 /* Protected */,
+       5,    0,   67,    2, 0x09 /* Protected */,
+       6,    0,   68,    2, 0x09 /* Protected */,
+       7,    0,   69,    2, 0x09 /* Protected */,
+       8,    1,   70,    2, 0x09 /* Protected */,
+      11,    1,   73,    2, 0x09 /* Protected */,
+      12,    0,   76,    2, 0x09 /* Protected */,
+      13,    0,   77,    2, 0x09 /* Protected */,
+      14,    1,   78,    2, 0x09 /* Protected */,
+      16,    0,   81,    2, 0x09 /* Protected */,
 
  // slots: parameters
     QMetaType::Void, 0x80000000 | 3,    4,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Float, QMetaType::Float,    9,
+    QMetaType::Void, 0x80000000 | 9,   10,
+    QMetaType::Void, 0x80000000 | 9,   10,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Float, QMetaType::Float,   15,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -90,8 +111,13 @@ void imu_to_joint_rviz_plugin::ImuToJointPanel::qt_static_metacall(QObject *_o, 
         case 1: _t->imu_id_set(); break;
         case 2: _t->startSpin(); break;
         case 3: _t->set_joint_offset(); break;
-        case 4: { float _r = _t->euler_to_radian((*reinterpret_cast< float(*)>(_a[1])));
+        case 4: _t->set_joint_state((*reinterpret_cast< sensor_msgs::JointState(*)>(_a[1]))); break;
+        case 5: _t->test_joint_state((*reinterpret_cast< sensor_msgs::JointState(*)>(_a[1]))); break;
+        case 6: _t->imu_start_listen(); break;
+        case 7: _t->joint_state_pub(); break;
+        case 8: { float _r = _t->euler_to_radian((*reinterpret_cast< float(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< float*>(_a[0]) = std::move(_r); }  break;
+        case 9: _t->checkTest(); break;
         default: ;
         }
     }
@@ -122,13 +148,13 @@ int imu_to_joint_rviz_plugin::ImuToJointPanel::qt_metacall(QMetaObject::Call _c,
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 10)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 10;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 10)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 5;
+        _id -= 10;
     }
     return _id;
 }

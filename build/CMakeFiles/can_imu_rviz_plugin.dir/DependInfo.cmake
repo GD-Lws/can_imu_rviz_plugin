@@ -29,6 +29,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/eigen3"
   "/usr/include/OGRE/Overlay"
   "/usr/include/OGRE"
+  "/home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/libcontrolcan"
   "/usr/include/x86_64-linux-gnu/qt5"
   "/usr/include/x86_64-linux-gnu/qt5/QtWidgets"
   "/usr/include/x86_64-linux-gnu/qt5/QtGui"

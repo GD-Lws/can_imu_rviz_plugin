@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(can_imu_rviz_plugin)
 find_package(catkin REQUIRED COMPONENTS rviz geometry_msgs std_msgs actionlib_msgs sensor_msgs can_imu_lws)
 catkin_package(CATKIN_DEPENDS message_runtime)
-include_directories(${catkin_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS} /home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/libcontrolcan)
 link_directories(${catkin_LIBRARY_DIRS})
 
 ## This setting causes Qt's "MOC" generation to happen automatically.
@@ -56,7 +56,7 @@ add_library(${PROJECT_NAME} ${SOURCE_FILES})
 ## library and names the actual file something like
 ## "librviz_plugin_tutorials.so", or whatever is appropriate for your
 ## particular OS.
-target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${catkin_LIBRARIES} libcontrolcan.so) 
 ## END_TUTORIAL
 
 

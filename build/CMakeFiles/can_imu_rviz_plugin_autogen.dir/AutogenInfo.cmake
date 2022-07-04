@@ -18,7 +18,7 @@ set(AM_QT_RCC_EXECUTABLE )
 # MOC settings
 set(AM_MOC_SKIP "/home/lws/catkin_ws/src/can_imu_rviz_plugin/build/can_imu_rviz_plugin_autogen/mocs_compilation.cpp")
 set(AM_MOC_DEFINITIONS "QT_CORE_LIB;QT_GUI_LIB;QT_NO_KEYWORDS;QT_WIDGETS_LIB;ROSCONSOLE_BACKEND_LOG4CXX;ROS_BUILD_SHARED_LIBS=1;ROS_PACKAGE_NAME=\"can_imu_rviz_plugin\"")
-set(AM_MOC_INCLUDES "/home/lws/catkin_ws/src/can_imu_rviz_plugin/build/can_imu_rviz_plugin_autogen/include;/home/lws/catkin_ws/devel/include;/opt/ros/melodic/include;/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp;/usr/include/eigen3;/usr/include/OGRE/Overlay;/usr/include/OGRE;/usr/include/x86_64-linux-gnu/qt5;/usr/include/x86_64-linux-gnu/qt5/QtWidgets;/usr/include/x86_64-linux-gnu/qt5/QtGui;/usr/include/x86_64-linux-gnu/qt5/QtCore;/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++;/usr/include")
+set(AM_MOC_INCLUDES "/home/lws/catkin_ws/src/can_imu_rviz_plugin/build/can_imu_rviz_plugin_autogen/include;/home/lws/catkin_ws/devel/include;/opt/ros/melodic/include;/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp;/usr/include/eigen3;/usr/include/OGRE/Overlay;/usr/include/OGRE;/home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/libcontrolcan;/usr/include/x86_64-linux-gnu/qt5;/usr/include/x86_64-linux-gnu/qt5/QtWidgets;/usr/include/x86_64-linux-gnu/qt5/QtGui;/usr/include/x86_64-linux-gnu/qt5/QtCore;/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++;/usr/include")
 set(AM_MOC_OPTIONS "")
 set(AM_MOC_RELAXED_MODE "FALSE")
 set(AM_MOC_MACRO_NAMES "Q_OBJECT;Q_GADGET;Q_NAMESPACE")
