@@ -34,6 +34,8 @@ QtCore/qmetatype.h
 UVLADIE3JM/moc_imu_to_joint_panel.cpp
 /home/lws/catkin_ws/src/can_imu_rviz_plugin/build/can_imu_rviz_plugin_autogen/UVLADIE3JM/moc_imu_to_joint_panel.cpp
 
+/home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/controlcan.h
+
 /home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/imu_to_joint_panel.cpp
 cstdio
 -
@@ -61,6 +63,8 @@ QtWidgets/QTableWidget
 -
 QtWidgets/qheaderview.h
 -
+controlcan.h
+/home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/controlcan.h
 imu_to_joint_panel.h
 /home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/imu_to_joint_panel.h
 pluginlib/class_list_macros.h

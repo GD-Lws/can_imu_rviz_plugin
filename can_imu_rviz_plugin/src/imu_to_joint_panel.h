@@ -24,7 +24,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/JointState.h>
 #include <can_imu_lws/IMU_Euler_msg.h>
-
+#include "controlcan.h"
 
 namespace imu_to_joint_rviz_plugin {
     class ImuToJointPanel : public rviz::Panel {
@@ -45,15 +45,20 @@ namespace imu_to_joint_rviz_plugin {
         void joint_state_pub();
         float euler_to_radian(float euler);
         void checkTest();
-       
+        void open_can_device();
+        void close_can_device();
+        void start_can_msg_receive();
+        void can_device_config_init(int Baud);
+
     protected:
         QLineEdit *editor_origin_imu,*editor_right_thigh_imu,*editor_left_thigh_imu,*editor_right_shank_imu,*editor_left_shank_imu;
-        QPushButton *button_imu_id_set, *button_imu_start_listen;
+        QPushButton *button_imu_id_set, *button_imu_start_listen, *button_can_device_open, *button_can_device_close;
         QCheckBox *checkbox_test;
         ros::NodeHandle nh_;
         ros::Publisher pub_joint_state_;
         ros::Subscriber sub_imu_msg_;
         // Y R P r_hip,l_hip,r_knee,l_knee
+        VCI_INIT_CONFIG can_device_config;
         float joint_position_euler_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         float joint_position_offset_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         int origin_imu_id = 79, right_thigh_id = 79, left_thigh_id = 79, right_shank_id = 79, left_shank_id = 79;
@@ -67,6 +72,7 @@ namespace imu_to_joint_rviz_plugin {
         int imu_status_array[5] = {0, 0, 0, 0, 0};
         // Y R P origin,right_thigh,left_thigh,right_shank,left_shank
         float imu_current_list[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        int flag_channel_1_open = 0, flag_channel_2_open = 0, flag_device_open = 0;
         bool flag_start_listen = false;
         bool flag_just_test = false;
     };

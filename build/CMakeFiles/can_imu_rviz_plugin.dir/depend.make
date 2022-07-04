@@ -224,6 +224,7 @@ CMakeFiles/can_imu_rviz_plugin.dir/can_imu_rviz_plugin_autogen/mocs_compilation.
 CMakeFiles/can_imu_rviz_plugin.dir/can_imu_rviz_plugin_autogen/mocs_compilation.cpp.o: /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qwidget.h
 
 CMakeFiles/can_imu_rviz_plugin.dir/src/imu_to_joint_panel.cpp.o: /home/lws/catkin_ws/devel/include/can_imu_lws/IMU_Euler_msg.h
+CMakeFiles/can_imu_rviz_plugin.dir/src/imu_to_joint_panel.cpp.o: /home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/controlcan.h
 CMakeFiles/can_imu_rviz_plugin.dir/src/imu_to_joint_panel.cpp.o: /home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/imu_to_joint_panel.cpp
 CMakeFiles/can_imu_rviz_plugin.dir/src/imu_to_joint_panel.cpp.o: /home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/imu_to_joint_panel.h
 CMakeFiles/can_imu_rviz_plugin.dir/src/imu_to_joint_panel.cpp.o: /opt/ros/melodic/include/actionlib_msgs/GoalID.h

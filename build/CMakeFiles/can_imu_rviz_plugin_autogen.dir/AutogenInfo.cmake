@@ -8,7 +8,7 @@ set(AM_CMAKE_CURRENT_BINARY_DIR "/home/lws/catkin_ws/src/can_imu_rviz_plugin/bui
 set(AM_CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE "")
 set(AM_BUILD_DIR "/home/lws/catkin_ws/src/can_imu_rviz_plugin/build/can_imu_rviz_plugin_autogen")
 set(AM_SOURCES "/home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/imu_to_joint_panel.cpp")
-set(AM_HEADERS "")
+set(AM_HEADERS "/home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/controlcan.h")
 # Qt environment
 set(AM_QT_VERSION_MAJOR "5")
 set(AM_QT_VERSION_MINOR "9")
