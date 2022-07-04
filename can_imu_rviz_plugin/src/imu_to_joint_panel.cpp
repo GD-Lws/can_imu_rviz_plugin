@@ -14,7 +14,6 @@
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/qheaderview.h>
 
-
 #include "imu_to_joint_panel.h"
 
 namespace imu_to_joint_rviz_plugin {
@@ -26,6 +25,13 @@ namespace imu_to_joint_rviz_plugin {
                                     
         QVBoxLayout *layout_root = new QVBoxLayout;
         layout_root->addWidget(new QLabel("imu_msg_to_joint_state"));
+
+        QHBoxLayout *layout_can_device = new QHBoxLayout;
+        button_can_device_open = new QPushButton("Can Device Open");
+        button_can_device_close = new QPushButton("Can Device close");
+        layout_can_device->addWidget(button_can_device_open);
+        layout_can_device->addWidget(button_can_device_close);
+        layout_root->addLayout(layout_can_device);
 
         QHBoxLayout *layout_origin_imu = new QHBoxLayout;
         layout_origin_imu->addWidget(new QLabel("Origin_imu_id:"));
@@ -72,10 +78,13 @@ namespace imu_to_joint_rviz_plugin {
         output_timer->start(200);
         connect(output_timer, SIGNAL(timeout()), this, SLOT(startSpin()));
         connect(button_imu_id_set, SIGNAL(clicked()), this, SLOT(imu_id_set()));
+       
+        connect(button_can_device_open, SIGNAL(clicked()), this, SLOT(open_can_device()));
+        connect(button_can_device_close, SIGNAL(clicked()), this, SLOT(close_can_device()));
+        
         connect(button_imu_start_listen, SIGNAL(clicked()), this, SLOT(imu_start_listen()));
         connect(checkbox_test, SIGNAL(clicked(bool)), this, SLOT(checkTest()));
     }
-
 
     void ImuToJointPanel::euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg){
         int can_id_index = euler_msg->imu_can_id - 80;
@@ -98,6 +107,60 @@ namespace imu_to_joint_rviz_plugin {
             joint_state_pub();
         }
     }
+
+    void ImuToJointPanel::can_device_config_init(int Baud){
+        can_device_config.AccCode = 0;
+        can_device_config.AccMask=0xFFFFFFFF;
+        can_device_config.Filter=1;//接收所有帧
+        if (Baud == 500){
+            // 500K
+            can_device_config.Timing0=0x00;/*波特率500 Kbps*/
+            can_device_config.Timing1=0x1C;
+        }else if(Baud == 100)
+        {
+            // 100K
+            can_device_config.Timing0=0x04;/*波特率100 Kbps*/
+            can_device_config.Timing1=0x1C;
+        }else{
+            // 1M
+            can_device_config.Timing0=0x00;/*波特率1 Mbps*/
+            can_device_config.Timing1=0x14;
+        }
+       
+        can_device_config.Mode=0;//正常模式
+    }
+
+    void ImuToJointPanel::open_can_device(){
+        flag_device_open = VCI_OpenDevice(VCI_USBCAN2, 0, 0);
+        if (flag_device_open == 1)
+        {
+            ROS_WARN("Device open sucess!!");
+            can_device_config_init(1000);
+            flag_channel_1_open = VCI_InitCAN(VCI_USBCAN2, 0, 0, &can_device_config);
+            flag_channel_2_open = VCI_InitCAN(VCI_USBCAN2, 0, 1, &can_device_config);
+            if(flag_channel_1_open == 1){
+                ROS_WARN("Channel_1_open_sucess!!");
+            }else{
+                ROS_ERROR("Channel_1_open_failed");
+            }
+            if(flag_channel_2_open == 1){
+                ROS_WARN("Channel_2_open_sucess!!");
+            }else{
+                ROS_ERROR("Channel_2_open_failed");
+            }
+        }else{
+            ROS_ERROR("Device open failed!!");
+        }
+    };
+    void ImuToJointPanel::close_can_device(){
+        if (flag_device_open == 1)
+        {
+            VCI_CloseDevice(VCI_USBCAN2,0);
+            ROS_WARN("设备已经关闭");
+        }else{
+            ROS_WARN("设备未开启");
+        }
+    };
 
     void ImuToJointPanel::checkTest(){
         flag_just_test = checkbox_test->isChecked();
