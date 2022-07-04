@@ -17,6 +17,39 @@
 #include "imu_to_joint_panel.h"
 
 namespace imu_to_joint_rviz_plugin {
+     void* thread_channel_1_receive(void* param){
+        ImuToJointPanel *imutojont = (ImuToJointPanel*)param;
+        int flag_run = imutojont->flag_thread_1_status;
+        VCI_CAN_OBJ rec[3000];
+        while (flag_run == 1)
+        {
+            if((reclen=VCI_Receive(VCI_USBCAN2,0,1,rec,3000,100))>0)//调用接收函数，如果有数据，进行数据处理显示。
+            {
+                for(j=0;j<reclen;j++)
+                {
+                    printf("Index:%04d  ",count);count++;//序号递增
+                    printf("CAN%d RX ID:0x%08X", ind+1, rec[j].ID);//ID
+                    if(rec[j].ExternFlag==0) printf(" Standard ");//帧格式：标准帧
+                    if(rec[j].ExternFlag==1) printf(" Extend   ");//帧格式：扩展帧
+                    if(rec[j].RemoteFlag==0) printf(" Data   ");//帧类型：数据帧
+                    if(rec[j].RemoteFlag==1) printf(" Remote ");//帧类型：远程帧
+                    printf("DLC:0x%02X",rec[j].DataLen);//帧长度
+                    printf(" data:0x");	//数据
+                    for(i = 0; i < rec[j].DataLen; i++)
+                    {
+                        printf(" %02X", rec[j].Data[i]);
+                    }
+                    printf(" TimeStamp:0x%08X",rec[j].TimeStamp);//时间标识。
+                    printf("\n");
+                }
+            }
+        }
+    }
+
+    void* thread_channel_2_receive(void* param){
+
+    }
+
     ImuToJointPanel::ImuToJointPanel(QWidget *parent)
             : rviz::Panel(parent),nh_(){
         pub_joint_state_ = nh_.advertise<sensor_msgs::JointState>("joint_states",1);
@@ -28,7 +61,9 @@ namespace imu_to_joint_rviz_plugin {
 
         QHBoxLayout *layout_can_device = new QHBoxLayout;
         button_can_device_open = new QPushButton("Can Device Open");
-        button_can_device_close = new QPushButton("Can Device close");
+        button_can_device_close = new QPushButton("Can Device Close");
+        button_can_msg_receive = new QPushButton("Can Msg Rec");
+    
         layout_can_device->addWidget(button_can_device_open);
         layout_can_device->addWidget(button_can_device_close);
         layout_root->addLayout(layout_can_device);
@@ -75,17 +110,31 @@ namespace imu_to_joint_rviz_plugin {
         setLayout(layout_root);
          // set a Qtimer to start a spin for subscriptions
         QTimer *output_timer = new QTimer(this);
-        output_timer->start(200);
+        output_timer->start(100);
         connect(output_timer, SIGNAL(timeout()), this, SLOT(startSpin()));
         connect(button_imu_id_set, SIGNAL(clicked()), this, SLOT(imu_id_set()));
        
         connect(button_can_device_open, SIGNAL(clicked()), this, SLOT(open_can_device()));
         connect(button_can_device_close, SIGNAL(clicked()), this, SLOT(close_can_device()));
+        connect(button_can_msg_receive, SIGNAL(clicked()), this, SLOT(close_can_device()));
         
         connect(button_imu_start_listen, SIGNAL(clicked()), this, SLOT(imu_start_listen()));
         connect(checkbox_test, SIGNAL(clicked(bool)), this, SLOT(checkTest()));
+
+      /*  int pthread_create(
+                 pthread_t *restrict tidp,   //新创建的线程ID指向的内存单元。
+                 const pthread_attr_t *restrict attr,  //线程属性，默认为NULL
+                 void *(*start_rtn)(void *), //新创建的线程从start_rtn函数的地址开始运行
+                 void *restrict arg //默认为NULL。若上述函数需要参数，将参数放入结构中并将地址作为arg传入。
+                  );*/
+        pthread_t threadid_1;
+        pthread_t threadid_2;
+        int status_thread_1 = pthread_create(&threadid_1, NULL, (thread_channel_1_receive), this);
+        int status_thread_2 = pthread_create(&threadid_2, NULL, (thread_channel_2_receive), this);
     }
 
+
+    
     void ImuToJointPanel::euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg){
         int can_id_index = euler_msg->imu_can_id - 80;
         if (can_id_index < 10){can_id_array[can_id_index] = 1;}
@@ -107,6 +156,13 @@ namespace imu_to_joint_rviz_plugin {
             joint_state_pub();
         }
     }
+
+    void ImuToJointPanel::can_msg_receive(){
+        flag_thread_1_status = 1;
+        flag_thread_2_status = 1;
+    }
+
+    
 
     void ImuToJointPanel::can_device_config_init(int Baud){
         can_device_config.AccCode = 0;
@@ -155,10 +211,13 @@ namespace imu_to_joint_rviz_plugin {
     void ImuToJointPanel::close_can_device(){
         if (flag_device_open == 1)
         {
+            VCI_ResetCAN(VCI_USBCAN2, 0, 0);//复位CAN1通道。
+	        usleep(100000);//延时100ms。
+            VCI_ResetCAN(VCI_USBCAN2, 0, 1);//复位CAN2通道。
             VCI_CloseDevice(VCI_USBCAN2,0);
-            ROS_WARN("设备已经关闭");
+            ROS_WARN("The device has been shut down.");
         }else{
-            ROS_WARN("设备未开启");
+            ROS_WARN("The device is not started.");
         }
     };
 
@@ -214,7 +273,6 @@ namespace imu_to_joint_rviz_plugin {
             joint_position_euler_array[4] = imu_current_list[10] - imu_current_list[4] - joint_position_offset_array[7]; 
             joint_position_euler_array[5] = imu_current_list[11] - imu_current_list[5] - joint_position_offset_array[8];
             ROS_INFO("r_knee euler:%f , %f, %f ",joint_position_euler_array[3], joint_position_euler_array[4], joint_position_euler_array[5]);
-
         }
         // left_thigh and left_shank -> l_knee
         if (imu_status_array[2] == 1 && imu_status_array[4] == 1)
@@ -349,8 +407,6 @@ namespace imu_to_joint_rviz_plugin {
             joint_position_offset_array[11] = imu_current_list[14] - imu_current_list[8];
             ROS_WARN("l_knee offset:%f , %f, %f ",joint_position_offset_array[9], joint_position_offset_array[10], joint_position_offset_array[11]);
         }
-        
-        
     }
 
     float ImuToJointPanel::euler_to_radian(float euler){

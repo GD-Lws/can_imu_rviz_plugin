@@ -3,5 +3,6 @@
         "/home/lws/catkin_ws/devel/lib/python2.7/dist-packages",
         "/opt/ros/melodic/lib/python2.7/dist-packages"
     ],
-    "cmake.sourceDirectory": "${workspaceFolder}/can_imu_rviz_plugin"
+    "cmake.sourceDirectory": "${workspaceFolder}/can_imu_rviz_plugin",
+    "C_Cpp.errorSquiggles": "Disabled"
 }

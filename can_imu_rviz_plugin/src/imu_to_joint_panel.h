@@ -27,6 +27,8 @@
 #include "controlcan.h"
 
 namespace imu_to_joint_rviz_plugin {
+    void* thread_channel_1_receive(void *param);//接收线程。
+    void* thread_channel_2_receive(void *param);//接收线程。
     class ImuToJointPanel : public rviz::Panel {
     Q_OBJECT
     public:
@@ -49,10 +51,12 @@ namespace imu_to_joint_rviz_plugin {
         void close_can_device();
         void start_can_msg_receive();
         void can_device_config_init(int Baud);
+        void can_msg_receive();
+
 
     protected:
         QLineEdit *editor_origin_imu,*editor_right_thigh_imu,*editor_left_thigh_imu,*editor_right_shank_imu,*editor_left_shank_imu;
-        QPushButton *button_imu_id_set, *button_imu_start_listen, *button_can_device_open, *button_can_device_close;
+        QPushButton *button_imu_id_set, *button_imu_start_listen, *button_can_device_open, *button_can_device_close, *button_can_msg_receive;
         QCheckBox *checkbox_test;
         ros::NodeHandle nh_;
         ros::Publisher pub_joint_state_;
@@ -72,7 +76,7 @@ namespace imu_to_joint_rviz_plugin {
         int imu_status_array[5] = {0, 0, 0, 0, 0};
         // Y R P origin,right_thigh,left_thigh,right_shank,left_shank
         float imu_current_list[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        int flag_channel_1_open = 0, flag_channel_2_open = 0, flag_device_open = 0;
+        int flag_channel_1_open = 0, flag_channel_2_open = 0, flag_device_open = 0, flag_thread_2_status = 0, flag_thread_1_status = 0;
         bool flag_start_listen = false;
         bool flag_just_test = false;
     };

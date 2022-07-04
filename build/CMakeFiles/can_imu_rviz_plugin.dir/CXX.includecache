@@ -63,8 +63,6 @@ QtWidgets/QTableWidget
 -
 QtWidgets/qheaderview.h
 -
-controlcan.h
-/home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/controlcan.h
 imu_to_joint_panel.h
 /home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/imu_to_joint_panel.h
 pluginlib/class_list_macros.h
@@ -107,6 +105,8 @@ sensor_msgs/JointState.h
 -
 can_imu_lws/IMU_Euler_msg.h
 -
+controlcan.h
+/home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/controlcan.h
 
 /opt/ros/melodic/include/actionlib_msgs/GoalID.h
 string
