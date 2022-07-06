@@ -17,33 +17,26 @@
 #include "imu_to_joint_panel.h"
 
 namespace imu_to_joint_rviz_plugin {
-     void* thread_channel_1_receive(void* param){
+     static void* thread_channel_1_receive(void* param){
         ImuToJointPanel *imutojont = (ImuToJointPanel*)param;
-        int flag_run = imutojont->flag_thread_1_status;
+        int i,j;
+        int ind = 0, reclen = 0, count = 0;
+        ROS_INFO("imutojont->flag_thread_1_status : %d", flag_thread_1_status);
         VCI_CAN_OBJ rec[3000];
-        while (flag_run == 1)
+        while (flag_thread_1_status == 1)
         {
+            // ROS_INFO("Start_listen");
             if((reclen=VCI_Receive(VCI_USBCAN2,0,1,rec,3000,100))>0)//调用接收函数，如果有数据，进行数据处理显示。
             {
                 for(j=0;j<reclen;j++)
                 {
-                    printf("Index:%04d  ",count);count++;//序号递增
-                    printf("CAN%d RX ID:0x%08X", ind+1, rec[j].ID);//ID
-                    if(rec[j].ExternFlag==0) printf(" Standard ");//帧格式：标准帧
-                    if(rec[j].ExternFlag==1) printf(" Extend   ");//帧格式：扩展帧
-                    if(rec[j].RemoteFlag==0) printf(" Data   ");//帧类型：数据帧
-                    if(rec[j].RemoteFlag==1) printf(" Remote ");//帧类型：远程帧
-                    printf("DLC:0x%02X",rec[j].DataLen);//帧长度
-                    printf(" data:0x");	//数据
-                    for(i = 0; i < rec[j].DataLen; i++)
-                    {
-                        printf(" %02X", rec[j].Data[i]);
-                    }
-                    printf(" TimeStamp:0x%08X",rec[j].TimeStamp);//时间标识。
-                    printf("\n");
+                    imutojont->vci_obj_process(rec[j]);
                 }
             }
         }
+        ROS_INFO("run thread exit\n");//退出接收线程	
+	    pthread_exit(NULL);
+   
     }
 
     void* thread_channel_2_receive(void* param){
@@ -59,14 +52,21 @@ namespace imu_to_joint_rviz_plugin {
         QVBoxLayout *layout_root = new QVBoxLayout;
         layout_root->addWidget(new QLabel("imu_msg_to_joint_state"));
 
-        QHBoxLayout *layout_can_device = new QHBoxLayout;
+        QHBoxLayout *layout_can_device_init = new QHBoxLayout;
         button_can_device_open = new QPushButton("Can Device Open");
         button_can_device_close = new QPushButton("Can Device Close");
-        button_can_msg_receive = new QPushButton("Can Msg Rec");
     
-        layout_can_device->addWidget(button_can_device_open);
-        layout_can_device->addWidget(button_can_device_close);
-        layout_root->addLayout(layout_can_device);
+        layout_can_device_init->addWidget(button_can_device_open);
+        layout_can_device_init->addWidget(button_can_device_close);
+        layout_root->addLayout(layout_can_device_init);
+
+        QHBoxLayout *layout_can_device_control = new QHBoxLayout;
+        button_can_start_listen = new QPushButton("Can Start_listen");
+        button_can_stop_listen = new QPushButton("Can Stop_listen");
+    
+        layout_can_device_control->addWidget(button_can_start_listen);
+        layout_can_device_control->addWidget(button_can_stop_listen);
+        layout_root->addLayout(layout_can_device_control);
 
         QHBoxLayout *layout_origin_imu = new QHBoxLayout;
         layout_origin_imu->addWidget(new QLabel("Origin_imu_id:"));
@@ -116,8 +116,9 @@ namespace imu_to_joint_rviz_plugin {
        
         connect(button_can_device_open, SIGNAL(clicked()), this, SLOT(open_can_device()));
         connect(button_can_device_close, SIGNAL(clicked()), this, SLOT(close_can_device()));
-        connect(button_can_msg_receive, SIGNAL(clicked()), this, SLOT(close_can_device()));
-        
+        connect(button_can_start_listen, SIGNAL(clicked()), this, SLOT(can_start_listen()));
+        connect(button_can_stop_listen, SIGNAL(clicked()), this, SLOT(can_stop_listen()));
+
         connect(button_imu_start_listen, SIGNAL(clicked()), this, SLOT(imu_start_listen()));
         connect(checkbox_test, SIGNAL(clicked(bool)), this, SLOT(checkTest()));
 
@@ -127,10 +128,22 @@ namespace imu_to_joint_rviz_plugin {
                  void *(*start_rtn)(void *), //新创建的线程从start_rtn函数的地址开始运行
                  void *restrict arg //默认为NULL。若上述函数需要参数，将参数放入结构中并将地址作为arg传入。
                   );*/
-        pthread_t threadid_1;
-        pthread_t threadid_2;
-        int status_thread_1 = pthread_create(&threadid_1, NULL, (thread_channel_1_receive), this);
-        int status_thread_2 = pthread_create(&threadid_2, NULL, (thread_channel_2_receive), this);
+        // int status_thread_2 = pthread_create(&threadid_2, NULL, (thread_channel_2_receive), this);
+        flag_thread_1_status = 0;
+        flag_thread_2_status = 0;
+        // int status_thread_1 = pthread_create(&threadid_1, NULL, thread_channel_1_receive, this);
+        // ROS_INFO("status_thread_1 : %d", status_thread_1);
+    }
+
+    // can_receive to msg
+    void ImuToJointPanel::vci_obj_process(VCI_CAN_OBJ vci_can_obj){
+        ROS_INFO("RX ID:0x%08X",vci_can_obj.ID);//ID
+
+        for(int i = 0; i < vci_can_obj.DataLen; i++)
+        {
+            ROS_INFO(" %02X", vci_can_obj.Data[i]);
+        }
+        ROS_INFO("\n");
     }
 
 
@@ -157,12 +170,24 @@ namespace imu_to_joint_rviz_plugin {
         }
     }
 
-    void ImuToJointPanel::can_msg_receive(){
-        flag_thread_1_status = 1;
-        flag_thread_2_status = 1;
+    void ImuToJointPanel::can_start_listen(){
+        if(flag_channel_1_open == 1){flag_thread_1_status = 1;
+            int status_thread_1 = pthread_create(&threadid_1, NULL, thread_channel_1_receive, (void*)this);
+            ROS_INFO("status_thread_1 : %d", status_thread_1);
+        }
+        else {ROS_ERROR("Channel 1 is not open yet!!");}
+        if(flag_channel_2_open == 1){flag_thread_2_status = 1;}
+        else{ROS_ERROR("Channel 2 is not open yet!!");}
+        if(flag_channel_2_open == 1 && flag_channel_1_open == 1)
+        ROS_WARN("Can Receive On");
     }
 
-    
+    void ImuToJointPanel::can_stop_listen(){
+        flag_thread_1_status = 0;
+        flag_thread_2_status = 0;
+        // pthread_join(threadid_2,NULL);//等待线程关闭。
+        ROS_WARN("Can Receive Off");
+    }
 
     void ImuToJointPanel::can_device_config_init(int Baud){
         can_device_config.AccCode = 0;
@@ -196,13 +221,25 @@ namespace imu_to_joint_rviz_plugin {
             flag_channel_2_open = VCI_InitCAN(VCI_USBCAN2, 0, 1, &can_device_config);
             if(flag_channel_1_open == 1){
                 ROS_WARN("Channel_1_open_sucess!!");
+                flag_channel_1_start = VCI_StartCAN(VCI_USBCAN2, 0, 0);
             }else{
                 ROS_ERROR("Channel_1_open_failed");
             }
             if(flag_channel_2_open == 1){
                 ROS_WARN("Channel_2_open_sucess!!");
+                flag_channel_2_start = VCI_StartCAN(VCI_USBCAN2, 0, 1);
             }else{
                 ROS_ERROR("Channel_2_open_failed");
+            }
+            if(flag_channel_1_start == 1){
+                ROS_WARN("Channel_1_start_sucess!!");
+            }else{
+                ROS_ERROR("Channel_1_start_failed");
+            }
+            if(flag_channel_2_start == 1){
+                ROS_WARN("Channel_2_start_sucess!!");
+            }else{
+                ROS_ERROR("Channel_2_start_failed");
             }
         }else{
             ROS_ERROR("Device open failed!!");
