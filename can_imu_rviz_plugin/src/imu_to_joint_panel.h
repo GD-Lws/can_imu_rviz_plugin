@@ -50,6 +50,7 @@ namespace imu_to_joint_rviz_plugin {
         void joint_state_pub();
         float euler_to_radian(float euler);
         void checkTest();
+        void checkSubLoad();
         void open_can_device();
         void close_can_device();
         void can_device_config_init(int Baud);
@@ -62,7 +63,7 @@ namespace imu_to_joint_rviz_plugin {
     protected:
         QLineEdit *editor_origin_imu,*editor_right_thigh_imu,*editor_left_thigh_imu,*editor_right_shank_imu,*editor_left_shank_imu;
         QPushButton *button_imu_id_set, *button_imu_start_listen, *button_can_device_open, *button_can_device_close, *button_can_start_listen, *button_can_stop_listen;
-        QCheckBox *checkbox_test;
+        QCheckBox *checkbox_test, *checkbox_sub_or_load;
         ros::NodeHandle nh_;
         ros::Publisher pub_joint_state_;
         ros::Subscriber sub_imu_msg_;
@@ -83,6 +84,7 @@ namespace imu_to_joint_rviz_plugin {
         // Y R P origin,right_thigh,left_thigh,right_shank,left_shank
         float imu_current_list[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         int flag_channel_1_open = 0, flag_channel_2_open = 0, flag_channel_1_start = 0, flag_channel_2_start = 0,flag_device_open = 0;
+        bool flag_sub_or_load = false;
         bool flag_start_listen = false;
         bool flag_just_test = false;
     };
