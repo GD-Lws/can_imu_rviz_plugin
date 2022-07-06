@@ -4,5 +4,8 @@
         "/opt/ros/melodic/lib/python2.7/dist-packages"
     ],
     "cmake.sourceDirectory": "${workspaceFolder}/can_imu_rviz_plugin",
-    "C_Cpp.errorSquiggles": "Disabled"
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "random": "cpp"
+    }
 }

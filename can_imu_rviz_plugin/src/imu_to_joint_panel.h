@@ -55,6 +55,8 @@ namespace imu_to_joint_rviz_plugin {
         void can_device_config_init(int Baud);
         void can_start_listen();
         void can_stop_listen();
+        int byte_to_short(BYTE H_data, BYTE L_data);
+        void euler_msg_process(can_imu_lws::IMU_Euler_msg euler_msg);
 
 
     protected:
@@ -77,7 +79,7 @@ namespace imu_to_joint_rviz_plugin {
                             "l_knee_pitch_joint",
                             "l_ankle_pitch_joint", "l_ankle_roll_joint"};
         int can_id_array[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        int imu_status_array[5] = {0, 0, 0, 0, 0};
+        int imu_joint_status_array[5] = {0, 0, 0, 0, 0};
         // Y R P origin,right_thigh,left_thigh,right_shank,left_shank
         float imu_current_list[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         int flag_channel_1_open = 0, flag_channel_2_open = 0, flag_channel_1_start = 0, flag_channel_2_start = 0,flag_device_open = 0;

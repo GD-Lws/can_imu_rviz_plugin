@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_imu_to_joint_rviz_plugin__ImuToJointPanel_t {
-    QByteArrayData data[23];
-    char stringdata0[376];
+    QByteArrayData data[31];
+    char stringdata0[489];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,32 +32,41 @@ struct qt_meta_stringdata_imu_to_joint_rviz_plugin__ImuToJointPanel_t {
 static const qt_meta_stringdata_imu_to_joint_rviz_plugin__ImuToJointPanel_t qt_meta_stringdata_imu_to_joint_rviz_plugin__ImuToJointPanel = {
     {
 QT_MOC_LITERAL(0, 0, 41), // "imu_to_joint_rviz_plugin::Imu..."
-QT_MOC_LITERAL(1, 42, 14), // "euler_callback"
-QT_MOC_LITERAL(2, 57, 0), // ""
-QT_MOC_LITERAL(3, 58, 36), // "can_imu_lws::IMU_Euler_msg::C..."
-QT_MOC_LITERAL(4, 95, 9), // "euler_msg"
-QT_MOC_LITERAL(5, 105, 10), // "imu_id_set"
-QT_MOC_LITERAL(6, 116, 9), // "startSpin"
-QT_MOC_LITERAL(7, 126, 16), // "set_joint_offset"
-QT_MOC_LITERAL(8, 143, 15), // "set_joint_state"
-QT_MOC_LITERAL(9, 159, 24), // "sensor_msgs::JointState&"
-QT_MOC_LITERAL(10, 184, 15), // "joint_state_msg"
-QT_MOC_LITERAL(11, 200, 16), // "test_joint_state"
-QT_MOC_LITERAL(12, 217, 16), // "imu_start_listen"
-QT_MOC_LITERAL(13, 234, 15), // "joint_state_pub"
-QT_MOC_LITERAL(14, 250, 15), // "euler_to_radian"
-QT_MOC_LITERAL(15, 266, 5), // "euler"
-QT_MOC_LITERAL(16, 272, 9), // "checkTest"
-QT_MOC_LITERAL(17, 282, 15), // "open_can_device"
-QT_MOC_LITERAL(18, 298, 16), // "close_can_device"
-QT_MOC_LITERAL(19, 315, 22), // "can_device_config_init"
-QT_MOC_LITERAL(20, 338, 4), // "Baud"
-QT_MOC_LITERAL(21, 343, 16), // "can_start_listen"
-QT_MOC_LITERAL(22, 360, 15) // "can_stop_listen"
+QT_MOC_LITERAL(1, 42, 15), // "vci_obj_process"
+QT_MOC_LITERAL(2, 58, 0), // ""
+QT_MOC_LITERAL(3, 59, 11), // "VCI_CAN_OBJ"
+QT_MOC_LITERAL(4, 71, 11), // "vci_can_obj"
+QT_MOC_LITERAL(5, 83, 14), // "euler_callback"
+QT_MOC_LITERAL(6, 98, 36), // "can_imu_lws::IMU_Euler_msg::C..."
+QT_MOC_LITERAL(7, 135, 9), // "euler_msg"
+QT_MOC_LITERAL(8, 145, 10), // "imu_id_set"
+QT_MOC_LITERAL(9, 156, 9), // "startSpin"
+QT_MOC_LITERAL(10, 166, 16), // "set_joint_offset"
+QT_MOC_LITERAL(11, 183, 15), // "set_joint_state"
+QT_MOC_LITERAL(12, 199, 24), // "sensor_msgs::JointState&"
+QT_MOC_LITERAL(13, 224, 15), // "joint_state_msg"
+QT_MOC_LITERAL(14, 240, 16), // "test_joint_state"
+QT_MOC_LITERAL(15, 257, 16), // "imu_start_listen"
+QT_MOC_LITERAL(16, 274, 15), // "joint_state_pub"
+QT_MOC_LITERAL(17, 290, 15), // "euler_to_radian"
+QT_MOC_LITERAL(18, 306, 5), // "euler"
+QT_MOC_LITERAL(19, 312, 9), // "checkTest"
+QT_MOC_LITERAL(20, 322, 15), // "open_can_device"
+QT_MOC_LITERAL(21, 338, 16), // "close_can_device"
+QT_MOC_LITERAL(22, 355, 22), // "can_device_config_init"
+QT_MOC_LITERAL(23, 378, 4), // "Baud"
+QT_MOC_LITERAL(24, 383, 16), // "can_start_listen"
+QT_MOC_LITERAL(25, 400, 15), // "can_stop_listen"
+QT_MOC_LITERAL(26, 416, 13), // "byte_to_short"
+QT_MOC_LITERAL(27, 430, 6), // "H_data"
+QT_MOC_LITERAL(28, 437, 6), // "L_data"
+QT_MOC_LITERAL(29, 444, 17), // "euler_msg_process"
+QT_MOC_LITERAL(30, 462, 26) // "can_imu_lws::IMU_Euler_msg"
 
     },
     "imu_to_joint_rviz_plugin::ImuToJointPanel\0"
-    "euler_callback\0\0can_imu_lws::IMU_Euler_msg::ConstPtr\0"
+    "vci_obj_process\0\0VCI_CAN_OBJ\0vci_can_obj\0"
+    "euler_callback\0can_imu_lws::IMU_Euler_msg::ConstPtr\0"
     "euler_msg\0imu_id_set\0startSpin\0"
     "set_joint_offset\0set_joint_state\0"
     "sensor_msgs::JointState&\0joint_state_msg\0"
@@ -65,7 +74,9 @@ QT_MOC_LITERAL(22, 360, 15) // "can_stop_listen"
     "joint_state_pub\0euler_to_radian\0euler\0"
     "checkTest\0open_can_device\0close_can_device\0"
     "can_device_config_init\0Baud\0"
-    "can_start_listen\0can_stop_listen"
+    "can_start_listen\0can_stop_listen\0"
+    "byte_to_short\0H_data\0L_data\0"
+    "euler_msg_process\0can_imu_lws::IMU_Euler_msg"
 };
 #undef QT_MOC_LITERAL
 
@@ -75,7 +86,7 @@ static const uint qt_meta_data_imu_to_joint_rviz_plugin__ImuToJointPanel[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      15,   14, // methods
+      18,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -83,38 +94,44 @@ static const uint qt_meta_data_imu_to_joint_rviz_plugin__ImuToJointPanel[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   89,    2, 0x09 /* Protected */,
-       5,    0,   92,    2, 0x09 /* Protected */,
-       6,    0,   93,    2, 0x09 /* Protected */,
-       7,    0,   94,    2, 0x09 /* Protected */,
-       8,    1,   95,    2, 0x09 /* Protected */,
-      11,    1,   98,    2, 0x09 /* Protected */,
-      12,    0,  101,    2, 0x09 /* Protected */,
-      13,    0,  102,    2, 0x09 /* Protected */,
-      14,    1,  103,    2, 0x09 /* Protected */,
-      16,    0,  106,    2, 0x09 /* Protected */,
-      17,    0,  107,    2, 0x09 /* Protected */,
-      18,    0,  108,    2, 0x09 /* Protected */,
-      19,    1,  109,    2, 0x09 /* Protected */,
-      21,    0,  112,    2, 0x09 /* Protected */,
-      22,    0,  113,    2, 0x09 /* Protected */,
+       1,    1,  104,    2, 0x0a /* Public */,
+       5,    1,  107,    2, 0x09 /* Protected */,
+       8,    0,  110,    2, 0x09 /* Protected */,
+       9,    0,  111,    2, 0x09 /* Protected */,
+      10,    0,  112,    2, 0x09 /* Protected */,
+      11,    1,  113,    2, 0x09 /* Protected */,
+      14,    1,  116,    2, 0x09 /* Protected */,
+      15,    0,  119,    2, 0x09 /* Protected */,
+      16,    0,  120,    2, 0x09 /* Protected */,
+      17,    1,  121,    2, 0x09 /* Protected */,
+      19,    0,  124,    2, 0x09 /* Protected */,
+      20,    0,  125,    2, 0x09 /* Protected */,
+      21,    0,  126,    2, 0x09 /* Protected */,
+      22,    1,  127,    2, 0x09 /* Protected */,
+      24,    0,  130,    2, 0x09 /* Protected */,
+      25,    0,  131,    2, 0x09 /* Protected */,
+      26,    2,  132,    2, 0x09 /* Protected */,
+      29,    1,  137,    2, 0x09 /* Protected */,
 
  // slots: parameters
     QMetaType::Void, 0x80000000 | 3,    4,
+    QMetaType::Void, 0x80000000 | 6,    7,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 9,   10,
-    QMetaType::Void, 0x80000000 | 9,   10,
+    QMetaType::Void, 0x80000000 | 12,   13,
+    QMetaType::Void, 0x80000000 | 12,   13,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Float, QMetaType::Float,   15,
+    QMetaType::Float, QMetaType::Float,   18,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,   20,
+    QMetaType::Void, QMetaType::Int,   23,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Int, QMetaType::UChar, QMetaType::UChar,   27,   28,
+    QMetaType::Void, 0x80000000 | 30,    7,
 
        0        // eod
 };
@@ -125,22 +142,26 @@ void imu_to_joint_rviz_plugin::ImuToJointPanel::qt_static_metacall(QObject *_o, 
         ImuToJointPanel *_t = static_cast<ImuToJointPanel *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->euler_callback((*reinterpret_cast< const can_imu_lws::IMU_Euler_msg::ConstPtr(*)>(_a[1]))); break;
-        case 1: _t->imu_id_set(); break;
-        case 2: _t->startSpin(); break;
-        case 3: _t->set_joint_offset(); break;
-        case 4: _t->set_joint_state((*reinterpret_cast< sensor_msgs::JointState(*)>(_a[1]))); break;
-        case 5: _t->test_joint_state((*reinterpret_cast< sensor_msgs::JointState(*)>(_a[1]))); break;
-        case 6: _t->imu_start_listen(); break;
-        case 7: _t->joint_state_pub(); break;
-        case 8: { float _r = _t->euler_to_radian((*reinterpret_cast< float(*)>(_a[1])));
+        case 0: _t->vci_obj_process((*reinterpret_cast< VCI_CAN_OBJ(*)>(_a[1]))); break;
+        case 1: _t->euler_callback((*reinterpret_cast< const can_imu_lws::IMU_Euler_msg::ConstPtr(*)>(_a[1]))); break;
+        case 2: _t->imu_id_set(); break;
+        case 3: _t->startSpin(); break;
+        case 4: _t->set_joint_offset(); break;
+        case 5: _t->set_joint_state((*reinterpret_cast< sensor_msgs::JointState(*)>(_a[1]))); break;
+        case 6: _t->test_joint_state((*reinterpret_cast< sensor_msgs::JointState(*)>(_a[1]))); break;
+        case 7: _t->imu_start_listen(); break;
+        case 8: _t->joint_state_pub(); break;
+        case 9: { float _r = _t->euler_to_radian((*reinterpret_cast< float(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< float*>(_a[0]) = std::move(_r); }  break;
-        case 9: _t->checkTest(); break;
-        case 10: _t->open_can_device(); break;
-        case 11: _t->close_can_device(); break;
-        case 12: _t->can_device_config_init((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 13: _t->can_start_listen(); break;
-        case 14: _t->can_stop_listen(); break;
+        case 10: _t->checkTest(); break;
+        case 11: _t->open_can_device(); break;
+        case 12: _t->close_can_device(); break;
+        case 13: _t->can_device_config_init((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 14: _t->can_start_listen(); break;
+        case 15: _t->can_stop_listen(); break;
+        case 16: { int _r = _t->byte_to_short((*reinterpret_cast< unsigned char(*)>(_a[1])),(*reinterpret_cast< unsigned char(*)>(_a[2])));
+            if (_a[0]) *reinterpret_cast< int*>(_a[0]) = std::move(_r); }  break;
+        case 17: _t->euler_msg_process((*reinterpret_cast< can_imu_lws::IMU_Euler_msg(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -171,13 +192,13 @@ int imu_to_joint_rviz_plugin::ImuToJointPanel::qt_metacall(QMetaObject::Call _c,
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 15)
+        if (_id < 18)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 15;
+        _id -= 18;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 15)
+        if (_id < 18)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 15;
+        _id -= 18;
     }
     return _id;
 }

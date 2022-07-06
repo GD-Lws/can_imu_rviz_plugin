@@ -120,6 +120,7 @@ namespace imu_to_joint_rviz_plugin {
         connect(button_can_stop_listen, SIGNAL(clicked()), this, SLOT(can_stop_listen()));
 
         connect(button_imu_start_listen, SIGNAL(clicked()), this, SLOT(imu_start_listen()));
+        // 单个imu接收测试
         connect(checkbox_test, SIGNAL(clicked(bool)), this, SLOT(checkTest()));
 
       /*  int pthread_create(
@@ -131,23 +132,55 @@ namespace imu_to_joint_rviz_plugin {
         // int status_thread_2 = pthread_create(&threadid_2, NULL, (thread_channel_2_receive), this);
         flag_thread_1_status = 0;
         flag_thread_2_status = 0;
-        // int status_thread_1 = pthread_create(&threadid_1, NULL, thread_channel_1_receive, this);
-        // ROS_INFO("status_thread_1 : %d", status_thread_1);
     }
 
     // can_receive to msg
     void ImuToJointPanel::vci_obj_process(VCI_CAN_OBJ vci_can_obj){
-        ROS_INFO("RX ID:0x%08X",vci_can_obj.ID);//ID
-
-        for(int i = 0; i < vci_can_obj.DataLen; i++)
+        int rec_can_id = vci_can_obj.ID;//ID
+        ROS_INFO("rec_can_id: %d", rec_can_id);
+        if ((int)vci_can_obj.Data[0] == 85)
         {
-            ROS_INFO(" %02X", vci_can_obj.Data[i]);
+            //    ROS_INFO("IMU_MSG");
+            if((int)vci_can_obj.Data[1] == 82){
+                // 角速度输出
+                float Wx = (float)byte_to_short(vci_can_obj.Data[3], vci_can_obj.Data[2])  / 32768 * 2000 * M_1_PI / 180;
+                float Wy = (float)byte_to_short(vci_can_obj.Data[5], vci_can_obj.Data[4])  / 32768 * 2000 * M_1_PI / 180;
+                float Wz = (float)byte_to_short(vci_can_obj.Data[7], vci_can_obj.Data[6])  / 32768 * 2000 * M_1_PI / 180;
+            }else if ((int)vci_can_obj.Data[1] == 81)
+            {
+                // 加速度输出
+                float Ax = (float)byte_to_short(vci_can_obj.Data[3], vci_can_obj.Data[2]) / 32768.0 * 16 * 9.8);
+                float Ay = (float)byte_to_short(vci_can_obj.Data[5], vci_can_obj.Data[4]) / 32768.0 * 16 * 9.8);
+                float Az = (float)byte_to_short(vci_can_obj.Data[7], vci_can_obj.Data[6]) / 32768.0 * 16 * 9.8);
+            }else if ((int)vci_can_obj.Data[1] == 83)
+            {
+                // ROS_INFO("%f", imu_data);
+                // 角度输出
+                float imu_roll = (float)byte_to_short(vci_can_obj.Data[3], vci_can_obj.Data[2]) /32768*180;
+                float imu_pitch = (float)byte_to_short(vci_can_obj.Data[5], vci_can_obj.Data[4]) /32768*180;
+                float imu_yaw = (float)byte_to_short(vci_can_obj.Data[7], vci_can_obj.Data[6]) /32768*180;
+
+                can_imu_lws::IMU_Euler_msg imu_euler_msg;
+                imu_euler_msg.imu_can_id = rec_can_id;
+                imu_euler_msg.Pitch = imu_pitch;
+                imu_euler_msg.Yaw = imu_yaw;
+                euler_msg_process(imu_euler_msg);
+                // ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);
+            }
         }
         ROS_INFO("\n");
     }
 
+    int ImuToJointPanel::byte_to_short(BYTE H_data, BYTE L_data){
+         short temp = 0;
+         temp = temp |H_data;
+         temp = temp << 8;
+         temp = temp | L_data;
+        //  ROS_INFO("temp: %d", temp);
+         return (int)temp;
+    }
 
-    
+    // 用于话题接收处理数据
     void ImuToJointPanel::euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg){
         int can_id_index = euler_msg->imu_can_id - 80;
         if (can_id_index < 10){can_id_array[can_id_index] = 1;}
@@ -164,6 +197,29 @@ namespace imu_to_joint_rviz_plugin {
         imu_current_list[start_index] = euler_msg->Yaw;
         imu_current_list[start_index + 1] = euler_msg->Roll;
         imu_current_list[start_index + 2] = euler_msg->Pitch;
+        if (flag_start_listen == true)
+        {
+            joint_state_pub();
+        }
+    }
+
+    // 用于处理自身读取到的角度
+    void ImuToJointPanel::euler_msg_process(can_imu_lws::IMU_Euler_msg euler_msg){
+        int can_id_index = euler_msg.imu_can_id - 80;
+        if (can_id_index < 10){can_id_array[can_id_index] = 1;}
+        int start_index = 0;
+        if (euler_msg.imu_can_id == origin_imu_id){start_index = 0;}
+        else if (euler_msg.imu_can_id == right_thigh_id){start_index = 3;}
+        else if (euler_msg.imu_can_id == left_thigh_id){start_index = 6;}
+        else if (euler_msg.imu_can_id == right_shank_id){start_index = 9;}
+        else if (euler_msg.imu_can_id == left_shank_id){start_index = 12;}
+        else {
+            // ROS_WARN("%d is undefined ID was received", euler_msg->imu_can_id);
+            }
+        if(flag_just_test == true){start_index = 0;}
+        imu_current_list[start_index] = euler_msg.Yaw;
+        imu_current_list[start_index + 1] = euler_msg.Roll;
+        imu_current_list[start_index + 2] = euler_msg.Pitch;
         if (flag_start_listen == true)
         {
             joint_state_pub();
@@ -245,6 +301,7 @@ namespace imu_to_joint_rviz_plugin {
             ROS_ERROR("Device open failed!!");
         }
     };
+   
     void ImuToJointPanel::close_can_device(){
         if (flag_device_open == 1)
         {
@@ -288,7 +345,7 @@ namespace imu_to_joint_rviz_plugin {
     }
 
     void ImuToJointPanel::set_joint_state(sensor_msgs::JointState &joint_state_msg){
-        if (imu_status_array[0] == 1 && imu_status_array [1] == 1)
+        if (imu_joint_status_array[0] == 1 && imu_joint_status_array [1] == 1)
         {
             joint_position_euler_array[0] = imu_current_list[3] - imu_current_list[0] - joint_position_offset_array[0];
             joint_position_euler_array[2] = imu_current_list[4] - imu_current_list[1] - joint_position_offset_array[1]; 
@@ -296,7 +353,7 @@ namespace imu_to_joint_rviz_plugin {
             ROS_INFO("r_hip euler:%f , %f, %f ",joint_position_euler_array[0], joint_position_euler_array[1], joint_position_euler_array[2]);
         }
         // origin and left_thigh -> l_hip
-        if (imu_status_array[0] == 1 && imu_status_array[2] == 1)
+        if (imu_joint_status_array[0] == 1 && imu_joint_status_array[2] == 1)
         {
             joint_position_euler_array[6] = imu_current_list[6] - imu_current_list[0] - joint_position_offset_array[3];
             joint_position_euler_array[8] = imu_current_list[7] - imu_current_list[1] - joint_position_offset_array[4]; 
@@ -304,7 +361,7 @@ namespace imu_to_joint_rviz_plugin {
             ROS_INFO("l_hip euler:%f , %f, %f ",joint_position_euler_array[6], joint_position_euler_array[7], joint_position_euler_array[8]);
         }
         // right_thigh and right_shank -> r_knee
-        if (imu_status_array[1] == 1 && imu_status_array[3] == 1)
+        if (imu_joint_status_array[1] == 1 && imu_joint_status_array[3] == 1)
         {
             joint_position_euler_array[3] = imu_current_list[9] - imu_current_list[3] - joint_position_offset_array[6];
             joint_position_euler_array[4] = imu_current_list[10] - imu_current_list[4] - joint_position_offset_array[7]; 
@@ -312,7 +369,7 @@ namespace imu_to_joint_rviz_plugin {
             ROS_INFO("r_knee euler:%f , %f, %f ",joint_position_euler_array[3], joint_position_euler_array[4], joint_position_euler_array[5]);
         }
         // left_thigh and left_shank -> l_knee
-        if (imu_status_array[2] == 1 && imu_status_array[4] == 1)
+        if (imu_joint_status_array[2] == 1 && imu_joint_status_array[4] == 1)
         {
             joint_position_euler_array[9] = imu_current_list[12] - imu_current_list[6] - joint_position_offset_array[9] ;
             joint_position_euler_array[10] = imu_current_list[13] - imu_current_list[7] - joint_position_offset_array[10]; 
@@ -336,7 +393,7 @@ namespace imu_to_joint_rviz_plugin {
         int flag_have_imu = 0;
         for(int i = 0; i < 5; i++)
         {
-            if (imu_status_array[i] == 1)
+            if (imu_joint_status_array[i] == 1)
             {
                 flag_have_imu++;
             }
@@ -358,61 +415,61 @@ namespace imu_to_joint_rviz_plugin {
         {
             int set_origin_imu_id = editor_origin_imu->text().toInt();
             if (set_origin_imu_id - 80 >= 0 && can_id_array[set_origin_imu_id - 80] != 0){
-                origin_imu_id = set_origin_imu_id;imu_status_array[0] = 1;
+                origin_imu_id = set_origin_imu_id;imu_joint_status_array[0] = 1;
                 ROS_INFO("Set origin imu id ");
                 flag_have_text = true;
             }
-            else {ROS_ERROR("Set_origin_id Error!");imu_status_array[0] = 0;}         
+            else {ROS_ERROR("Set_origin_id Error!");imu_joint_status_array[0] = 0;}         
         }
         if (editor_right_thigh_imu->text() != "")
         {
             int set_right_thigh_imu_id = editor_right_thigh_imu->text().toInt();
             if (set_right_thigh_imu_id - 80 >= 0 && can_id_array[set_right_thigh_imu_id - 80] != 0){
                 right_thigh_id = set_right_thigh_imu_id;
-                imu_status_array[1] = 1;
+                imu_joint_status_array[1] = 1;
                 flag_have_text = true;
                 }
-            else {ROS_ERROR("Set_right_thigh_id Error!");imu_status_array[1] = 0;}
+            else {ROS_ERROR("Set_right_thigh_id Error!");imu_joint_status_array[1] = 0;}
         }
         if (editor_left_thigh_imu->text() != "")
         {
             int set_left_thigh_imu_id = editor_left_thigh_imu->text().toInt();
             if (set_left_thigh_imu_id - 80 >= 0 && can_id_array[set_left_thigh_imu_id - 80] != 0){
                 left_thigh_id = set_left_thigh_imu_id;
-                imu_status_array[2] = 1;
+                imu_joint_status_array[2] = 1;
                 flag_have_text = true;
                 }
-            else {ROS_ERROR("Set_left_thigh_id Error!");imu_status_array[2] = 0;}
+            else {ROS_ERROR("Set_left_thigh_id Error!");imu_joint_status_array[2] = 0;}
         }
         if (editor_right_shank_imu->text() != "")
         {
             int set_right_shank_imu_id = editor_right_shank_imu->text().toInt();
             if (set_right_shank_imu_id - 80 >= 0 && can_id_array[set_right_shank_imu_id - 80] != 0){
                 right_shank_id = set_right_shank_imu_id;
-                imu_status_array[3] = 1;
+                imu_joint_status_array[3] = 1;
                 flag_have_text = true;
                 }
-            else {ROS_ERROR("Set_right_shank_id Error!");imu_status_array[3] = 0;}
+            else {ROS_ERROR("Set_right_shank_id Error!");imu_joint_status_array[3] = 0;}
         }
         if (editor_left_shank_imu->text() != "")
         {
             int set_left_shank_imu_id = editor_left_shank_imu->text().toInt();
-            if (set_left_shank_imu_id - 80 >= 0 && can_id_array[set_left_shank_imu_id - 80] != 0){left_shank_id = set_left_shank_imu_id;imu_status_array[4] = 1;}
-            else {ROS_ERROR("Set_left_shank_id Error!");imu_status_array[4] = 0;}
+            if (set_left_shank_imu_id - 80 >= 0 && can_id_array[set_left_shank_imu_id - 80] != 0){left_shank_id = set_left_shank_imu_id;imu_joint_status_array[4] = 1;}
+            else {ROS_ERROR("Set_left_shank_id Error!");imu_joint_status_array[4] = 0;}
         }
         if(flag_have_text == false){
             ROS_ERROR("IMU_ID_SET_EDITOR_IS_NULL");
         }else{
             ROS_WARN("Set_origin_id: %d, Set_Right_thingh_id: %d, Set_left_thingh_id: %d",origin_imu_id,right_thigh_id,left_thigh_id);
             ROS_WARN("Set_right_shank_id: %d, Set_left_shank_id: %d \n",right_shank_id,left_shank_id);
-            ROS_WARN("Status_origin_id: %d, Status_Right_thingh_id: %d, Status_left_thingh_id: %d",imu_status_array[0],imu_status_array[1],imu_status_array[2]);
-            ROS_WARN("Status_right_shank_id: %d, Status_left_shank_id: %d",imu_status_array[3],imu_status_array[4]);
+            ROS_WARN("Status_origin_id: %d, Status_Right_thingh_id: %d, Status_left_thingh_id: %d",imu_joint_status_array[0],imu_joint_status_array[1],imu_joint_status_array[2]);
+            ROS_WARN("Status_right_shank_id: %d, Status_left_shank_id: %d",imu_joint_status_array[3],imu_joint_status_array[4]);
         }
     }
 
     void ImuToJointPanel::set_joint_offset(){
         // origin and right_thigh -> r_hip
-        if (imu_status_array[0] == 1 && imu_status_array [1] == 1)
+        if (imu_joint_status_array[0] == 1 && imu_joint_status_array [1] == 1)
         {
             joint_position_offset_array[0] = imu_current_list[3] - imu_current_list[0];
             joint_position_offset_array[1] = imu_current_list[4] - imu_current_list[1]; 
@@ -420,7 +477,7 @@ namespace imu_to_joint_rviz_plugin {
             ROS_WARN("r_hip offset:%f , %f, %f ",joint_position_offset_array[0], joint_position_offset_array[1], joint_position_offset_array[2]);
         }
         // origin and left_thigh -> l_hip
-        if (imu_status_array[0] == 1 && imu_status_array[2] == 1)
+        if (imu_joint_status_array[0] == 1 && imu_joint_status_array[2] == 1)
         {
             joint_position_offset_array[3] = imu_current_list[6] - imu_current_list[0];
             joint_position_offset_array[4] = imu_current_list[7] - imu_current_list[1]; 
@@ -428,7 +485,7 @@ namespace imu_to_joint_rviz_plugin {
             ROS_WARN("l_hip offset:%f , %f, %f ",joint_position_offset_array[3], joint_position_offset_array[4], joint_position_offset_array[5]);
         }
         // right_thigh and right_shank -> r_knee
-        if (imu_status_array[1] == 1 && imu_status_array[3] == 1)
+        if (imu_joint_status_array[1] == 1 && imu_joint_status_array[3] == 1)
         {
             joint_position_offset_array[6] = imu_current_list[9] - imu_current_list[3];
             joint_position_offset_array[7] = imu_current_list[10] - imu_current_list[4]; 
@@ -437,7 +494,7 @@ namespace imu_to_joint_rviz_plugin {
 
         }
         // left_thigh and left_shank -> l_knee
-        if (imu_status_array[2] == 1 && imu_status_array[4] == 1)
+        if (imu_joint_status_array[2] == 1 && imu_joint_status_array[4] == 1)
         {
             joint_position_offset_array[9] = imu_current_list[12] - imu_current_list[6];
             joint_position_offset_array[10] = imu_current_list[13] - imu_current_list[7]; 
