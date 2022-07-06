@@ -98,8 +98,12 @@ namespace imu_to_joint_rviz_plugin {
         layout_left_shank_imu->addWidget(editor_left_shank_imu);
         layout_root->addLayout(layout_left_shank_imu);
 
+        QHBoxLayout *layout_checkBox = new QHBoxLayout;
         checkbox_test = new QCheckBox("Just Test euler");
-        layout_root->addWidget(checkbox_test);
+        layout_checkBox->addWidget(checkbox_test);
+        checkbox_sub_or_load = new QCheckBox("Sub_or_Load");
+        layout_checkBox->addWidget(checkbox_sub_or_load);
+        layout_root->addLayout(layout_checkBox);
         
         button_imu_id_set = new QPushButton("Imu_ID_Set");
         layout_root->addWidget(button_imu_id_set);
@@ -137,7 +141,7 @@ namespace imu_to_joint_rviz_plugin {
     // can_receive to msg
     void ImuToJointPanel::vci_obj_process(VCI_CAN_OBJ vci_can_obj){
         int rec_can_id = vci_can_obj.ID;//ID
-        ROS_INFO("rec_can_id: %d", rec_can_id);
+        // ROS_INFO("rec_can_id: %d", rec_can_id);
         if ((int)vci_can_obj.Data[0] == 85)
         {
             //    ROS_INFO("IMU_MSG");
@@ -149,9 +153,9 @@ namespace imu_to_joint_rviz_plugin {
             }else if ((int)vci_can_obj.Data[1] == 81)
             {
                 // 加速度输出
-                float Ax = (float)byte_to_short(vci_can_obj.Data[3], vci_can_obj.Data[2]) / 32768.0 * 16 * 9.8);
-                float Ay = (float)byte_to_short(vci_can_obj.Data[5], vci_can_obj.Data[4]) / 32768.0 * 16 * 9.8);
-                float Az = (float)byte_to_short(vci_can_obj.Data[7], vci_can_obj.Data[6]) / 32768.0 * 16 * 9.8);
+                float Ax = (float)byte_to_short(vci_can_obj.Data[3], vci_can_obj.Data[2]) / 32768.0 * 16 * 9.8;
+                float Ay = (float)byte_to_short(vci_can_obj.Data[5], vci_can_obj.Data[4]) / 32768.0 * 16 * 9.8;
+                float Az = (float)byte_to_short(vci_can_obj.Data[7], vci_can_obj.Data[6]) / 32768.0 * 16 * 9.8;
             }else if ((int)vci_can_obj.Data[1] == 83)
             {
                 // ROS_INFO("%f", imu_data);
@@ -168,7 +172,7 @@ namespace imu_to_joint_rviz_plugin {
                 // ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);
             }
         }
-        ROS_INFO("\n");
+        // ROS_INFO("\n");
     }
 
     int ImuToJointPanel::byte_to_short(BYTE H_data, BYTE L_data){
@@ -182,47 +186,51 @@ namespace imu_to_joint_rviz_plugin {
 
     // 用于话题接收处理数据
     void ImuToJointPanel::euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg){
-        int can_id_index = euler_msg->imu_can_id - 80;
-        if (can_id_index < 10){can_id_array[can_id_index] = 1;}
-        int start_index = 0;
-        if (euler_msg->imu_can_id == origin_imu_id){start_index = 0;}
-        else if (euler_msg->imu_can_id == right_thigh_id){start_index = 3;}
-        else if (euler_msg->imu_can_id == left_thigh_id){start_index = 6;}
-        else if (euler_msg->imu_can_id == right_shank_id){start_index = 9;}
-        else if (euler_msg->imu_can_id == left_shank_id){start_index = 12;}
-        else {
-            // ROS_WARN("%d is undefined ID was received", euler_msg->imu_can_id);
+         if(flag_sub_or_load == true){
+            int can_id_index = euler_msg->imu_can_id - 80;
+            if (can_id_index < 10){can_id_array[can_id_index] = 1;}
+            int start_index = 0;
+            if (euler_msg->imu_can_id == origin_imu_id){start_index = 0;}
+            else if (euler_msg->imu_can_id == right_thigh_id){start_index = 3;}
+            else if (euler_msg->imu_can_id == left_thigh_id){start_index = 6;}
+            else if (euler_msg->imu_can_id == right_shank_id){start_index = 9;}
+            else if (euler_msg->imu_can_id == left_shank_id){start_index = 12;}
+            else {
+                // ROS_WARN("%d is undefined ID was received", euler_msg->imu_can_id);
+                }
+            if(flag_just_test == true){start_index = 0;}
+            imu_current_list[start_index] = euler_msg->Yaw;
+            imu_current_list[start_index + 1] = euler_msg->Roll;
+            imu_current_list[start_index + 2] = euler_msg->Pitch;
+            if (flag_start_listen == true)
+            {
+                joint_state_pub();
             }
-        if(flag_just_test == true){start_index = 0;}
-        imu_current_list[start_index] = euler_msg->Yaw;
-        imu_current_list[start_index + 1] = euler_msg->Roll;
-        imu_current_list[start_index + 2] = euler_msg->Pitch;
-        if (flag_start_listen == true)
-        {
-            joint_state_pub();
-        }
+         }
     }
 
     // 用于处理自身读取到的角度
     void ImuToJointPanel::euler_msg_process(can_imu_lws::IMU_Euler_msg euler_msg){
-        int can_id_index = euler_msg.imu_can_id - 80;
-        if (can_id_index < 10){can_id_array[can_id_index] = 1;}
-        int start_index = 0;
-        if (euler_msg.imu_can_id == origin_imu_id){start_index = 0;}
-        else if (euler_msg.imu_can_id == right_thigh_id){start_index = 3;}
-        else if (euler_msg.imu_can_id == left_thigh_id){start_index = 6;}
-        else if (euler_msg.imu_can_id == right_shank_id){start_index = 9;}
-        else if (euler_msg.imu_can_id == left_shank_id){start_index = 12;}
-        else {
-            // ROS_WARN("%d is undefined ID was received", euler_msg->imu_can_id);
+        if(flag_sub_or_load == false){
+            int can_id_index = euler_msg.imu_can_id - 80;
+            if (can_id_index < 10){can_id_array[can_id_index] = 1;}
+            int start_index = 0;
+            if (euler_msg.imu_can_id == origin_imu_id){start_index = 0;}
+            else if (euler_msg.imu_can_id == right_thigh_id){start_index = 3;}
+            else if (euler_msg.imu_can_id == left_thigh_id){start_index = 6;}
+            else if (euler_msg.imu_can_id == right_shank_id){start_index = 9;}
+            else if (euler_msg.imu_can_id == left_shank_id){start_index = 12;}
+            else {
+                // ROS_WARN("%d is undefined ID was received", euler_msg->imu_can_id);
+                }
+            if(flag_just_test == true){start_index = 0;}
+            imu_current_list[start_index] = euler_msg.Yaw;
+            imu_current_list[start_index + 1] = euler_msg.Roll;
+            imu_current_list[start_index + 2] = euler_msg.Pitch;
+            if (flag_start_listen == true)
+            {
+                joint_state_pub();
             }
-        if(flag_just_test == true){start_index = 0;}
-        imu_current_list[start_index] = euler_msg.Yaw;
-        imu_current_list[start_index + 1] = euler_msg.Roll;
-        imu_current_list[start_index + 2] = euler_msg.Pitch;
-        if (flag_start_listen == true)
-        {
-            joint_state_pub();
         }
     }
 
@@ -317,6 +325,10 @@ namespace imu_to_joint_rviz_plugin {
 
     void ImuToJointPanel::checkTest(){
         flag_just_test = checkbox_test->isChecked();
+    }
+
+    void ImuToJointPanel::checkSubLoad(){
+        flag_sub_or_load = checkbox_sub_or_load->isChecked();
     }
 
     void ImuToJointPanel::joint_state_pub()
