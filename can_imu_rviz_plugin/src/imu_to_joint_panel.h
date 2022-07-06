@@ -29,6 +29,7 @@
 namespace imu_to_joint_rviz_plugin {
     static void* thread_channel_1_receive(void *param);//接收线程。
     static int flag_thread_2_status, flag_thread_1_status;
+    static int origin_imu_id = 79, right_thigh_id = 79, left_thigh_id = 79, right_shank_id = 79, left_shank_id = 79;
 
     void* thread_channel_2_receive(void *param);//接收线程。
     class ImuToJointPanel : public rviz::Panel {
@@ -66,13 +67,13 @@ namespace imu_to_joint_rviz_plugin {
         QCheckBox *checkbox_test, *checkbox_sub_or_load;
         ros::NodeHandle nh_;
         ros::Publisher pub_joint_state_;
+        ros::Publisher pub_joint_origin_imu, pub_joint_r_shank_imu, pub_joint_l_shank_imu, pub_joint_r_thigh_imu, pub_joint_l_thigh_imu;
         ros::Subscriber sub_imu_msg_;
         // Y R P r_hip,l_hip,r_knee,l_knee
         VCI_INIT_CONFIG can_device_config;
         pthread_t threadid_1, threadid_2;
         float joint_position_euler_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         float joint_position_offset_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        int origin_imu_id = 79, right_thigh_id = 79, left_thigh_id = 79, right_shank_id = 79, left_shank_id = 79;
         std::string joint_name_array[12] = {"r_hip_yaw_joint", "r_hip_roll_joint", "r_hip_pitch_joint",
                             "r_knee_pitch_joint",
                             "r_ankle_pitch_joint", "r_ankle_roll_joint",
@@ -84,6 +85,7 @@ namespace imu_to_joint_rviz_plugin {
         // Y R P origin,right_thigh,left_thigh,right_shank,left_shank
         float imu_current_list[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         int flag_channel_1_open = 0, flag_channel_2_open = 0, flag_channel_1_start = 0, flag_channel_2_start = 0,flag_device_open = 0;
+        std::vector<sensor_msgs::Imu> vector_joint_imu[10];
         bool flag_sub_or_load = false;
         bool flag_start_listen = false;
         bool flag_just_test = false;

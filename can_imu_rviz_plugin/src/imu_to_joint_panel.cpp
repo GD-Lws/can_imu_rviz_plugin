@@ -48,6 +48,13 @@ namespace imu_to_joint_rviz_plugin {
         pub_joint_state_ = nh_.advertise<sensor_msgs::JointState>("joint_states",1);
         sub_imu_msg_ = nh_.subscribe<can_imu_lws::IMU_Euler_msg>("imu_euler_pub",100,
                                     boost::bind(&ImuToJointPanel::euler_callback, this,_1));
+
+        pub_joint_origin_imu = nh_.advertise<sensor_msgs::Imu>("origin_Imu_pub",1);
+        pub_joint_r_shank_imu = nh_.advertise<sensor_msgs::Imu>("r_shank_Imu_pub",1);
+        pub_joint_l_shank_imu = nh_.advertise<sensor_msgs::Imu>("l_shank_Imu_pub",1);
+        pub_joint_r_thigh_imu = nh_.advertise<sensor_msgs::Imu>("r_thingh_Imu_pub",1);
+        pub_joint_l_thigh_imu = nh_.advertise<sensor_msgs::Imu>("l_thingh_Imu_pub",1);
+
                                     
         QVBoxLayout *layout_root = new QVBoxLayout;
         layout_root->addWidget(new QLabel("imu_msg_to_joint_state"));
@@ -142,6 +149,19 @@ namespace imu_to_joint_rviz_plugin {
     void ImuToJointPanel::vci_obj_process(VCI_CAN_OBJ vci_can_obj){
         int rec_can_id = vci_can_obj.ID;//ID
         // ROS_INFO("rec_can_id: %d", rec_can_id);
+        int rec_can_id_index = rec_can_id - 80;
+        if (vector_joint_imu[rec_can_id_index].empty())
+        {
+            sensor_msgs::Imu temp_Imu;
+            temp_Imu.header.seq = 0;
+            temp_Imu.header.frame_id = std::to_string(rec_can_id);
+            vector_joint_imu[rec_can_id_index].push_back(temp_Imu);
+        }
+        std::vector<sensor_msgs::Imu>::iterator sensor_iterator = vector_joint_imu[rec_can_id_index].begin();
+        if (sensor_iterator->header.seq == 3)
+        {
+                        
+        }
         if ((int)vci_can_obj.Data[0] == 85)
         {
             //    ROS_INFO("IMU_MSG");
@@ -150,12 +170,26 @@ namespace imu_to_joint_rviz_plugin {
                 float Wx = (float)byte_to_short(vci_can_obj.Data[3], vci_can_obj.Data[2])  / 32768 * 2000 * M_1_PI / 180;
                 float Wy = (float)byte_to_short(vci_can_obj.Data[5], vci_can_obj.Data[4])  / 32768 * 2000 * M_1_PI / 180;
                 float Wz = (float)byte_to_short(vci_can_obj.Data[7], vci_can_obj.Data[6])  / 32768 * 2000 * M_1_PI / 180;
+                if (sensor_iterator->header.seq == 0)
+                {
+                    sensor_iterator->angular_velocity.x = Wx;
+                    sensor_iterator->angular_velocity.y = Wy;
+                    sensor_iterator->angular_velocity.z = Wz;
+                    sensor_iterator->header.seq = 1;
+                }
             }else if ((int)vci_can_obj.Data[1] == 81)
             {
                 // 加速度输出
                 float Ax = (float)byte_to_short(vci_can_obj.Data[3], vci_can_obj.Data[2]) / 32768.0 * 16 * 9.8;
                 float Ay = (float)byte_to_short(vci_can_obj.Data[5], vci_can_obj.Data[4]) / 32768.0 * 16 * 9.8;
                 float Az = (float)byte_to_short(vci_can_obj.Data[7], vci_can_obj.Data[6]) / 32768.0 * 16 * 9.8;
+                if (sensor_iterator->header.seq == 1)
+                {
+                    sensor_iterator->linear_acceleration.x = Ax;
+                    sensor_iterator->linear_acceleration.y = Ay;
+                    sensor_iterator->linear_acceleration.z = Az;
+                    sensor_iterator->header.seq = 2;
+                }
             }else if ((int)vci_can_obj.Data[1] == 83)
             {
                 // ROS_INFO("%f", imu_data);
@@ -164,6 +198,25 @@ namespace imu_to_joint_rviz_plugin {
                 float imu_pitch = (float)byte_to_short(vci_can_obj.Data[5], vci_can_obj.Data[4]) /32768*180;
                 float imu_yaw = (float)byte_to_short(vci_can_obj.Data[7], vci_can_obj.Data[6]) /32768*180;
 
+                if (sensor_iterator->header.seq == 2)
+                {
+                    tf::Quaternion quat = tf::createQuaternionMsgFromRollPitchYaw(imu_roll, imu_pitch, imu_yaw);
+                    sensor_iterator->orientation.x = quat.getX();
+                    // sensor_iterator->orientation.y = quat.y;
+                    // sensor_iterator->orientation.z = quat.z;
+                    // sensor_iterator->orientation.w = quat.w;
+
+                    // sensor_iterator->linear_acceleration.x = Ax;
+                    // sensor_iterator->linear_acceleration.y = Ay;
+                    // sensor_iterator->linear_acceleration.z = Az;
+                    sensor_iterator->header.stamp = ros::Time::now();
+                    if (rec_can_id == origin_imu_id){pub_joint_origin_imu.publish(*sensor_iterator);}
+                    else if (rec_can_id == right_thigh_id){pub_joint_r_thigh_imu.publish(*sensor_iterator);}
+                    else if (rec_can_id == right_shank_id){pub_joint_r_shank_imu.publish(*sensor_iterator);}
+                    else if (rec_can_id == left_shank_id){pub_joint_l_shank_imu.publish(*sensor_iterator);}
+                    else if (rec_can_id == left_thigh_id){pub_joint_l_thigh_imu.publish(*sensor_iterator);}
+                    vector_joint_imu[rec_can_id_index].pop_back();
+                }
                 can_imu_lws::IMU_Euler_msg imu_euler_msg;
                 imu_euler_msg.imu_can_id = rec_can_id;
                 imu_euler_msg.Pitch = imu_pitch;
@@ -515,6 +568,7 @@ namespace imu_to_joint_rviz_plugin {
         }
     }
 
+    // 角度转弧度
     float ImuToJointPanel::euler_to_radian(float euler){
         float radians = M_PI / 180 * euler;
         return radians;
