@@ -201,8 +201,7 @@ namespace imu_to_joint_rviz_plugin {
                 imu_euler_msg.Pitch = imu_pitch;
                 imu_euler_msg.Yaw = imu_yaw;
                 euler_msg_process(imu_euler_msg);
-                pub_euler_imu.publish(imu_euler_msg);
-                // ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);
+                ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);
                  if (sensor_iterator->header.seq == 2){
                     geometry_msgs::Quaternion quat = tf::createQuaternionMsgFromRollPitchYaw(imu_roll, imu_pitch, imu_yaw);
                     sensor_iterator->orientation = quat;
@@ -246,6 +245,7 @@ namespace imu_to_joint_rviz_plugin {
             imu_current_list[start_index] = euler_msg->Yaw;
             imu_current_list[start_index + 1] = euler_msg->Roll;
             imu_current_list[start_index + 2] = euler_msg->Pitch;
+            // pub_euler_imu.publish(imu_euler_msg);
             if (flag_start_listen == true)
             {
                 joint_state_pub();
