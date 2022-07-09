@@ -54,6 +54,7 @@ namespace imu_to_joint_rviz_plugin {
         pub_joint_l_shank_imu = nh_.advertise<sensor_msgs::Imu>("l_shank_Imu_pub",1);
         pub_joint_r_thigh_imu = nh_.advertise<sensor_msgs::Imu>("r_thingh_Imu_pub",1);
         pub_joint_l_thigh_imu = nh_.advertise<sensor_msgs::Imu>("l_thingh_Imu_pub",1);
+        pub_euler_imu = nh_.advertise<can_imu_lws::IMU_Euler_msg>("imu_euler_test",1);
 
                                     
         QVBoxLayout *layout_root = new QVBoxLayout;
@@ -200,6 +201,7 @@ namespace imu_to_joint_rviz_plugin {
                 imu_euler_msg.Pitch = imu_pitch;
                 imu_euler_msg.Yaw = imu_yaw;
                 euler_msg_process(imu_euler_msg);
+                pub_euler_imu.publish(imu_euler_msg);
                 // ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);
                  if (sensor_iterator->header.seq == 2){
                     geometry_msgs::Quaternion quat = tf::createQuaternionMsgFromRollPitchYaw(imu_roll, imu_pitch, imu_yaw);

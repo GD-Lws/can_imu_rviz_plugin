@@ -66,7 +66,7 @@ namespace imu_to_joint_rviz_plugin {
         QPushButton *button_imu_id_set, *button_imu_start_listen, *button_can_device_open, *button_can_device_close, *button_can_start_listen, *button_can_stop_listen;
         QCheckBox *checkbox_test, *checkbox_sub_or_load;
         ros::NodeHandle nh_;
-        ros::Publisher pub_joint_state_;
+        ros::Publisher pub_joint_state_, pub_euler_imu;
         ros::Publisher pub_joint_origin_imu, pub_joint_r_shank_imu, pub_joint_l_shank_imu, pub_joint_r_thigh_imu, pub_joint_l_thigh_imu;
         ros::Subscriber sub_imu_msg_;
         // Y R P r_hip,l_hip,r_knee,l_knee
