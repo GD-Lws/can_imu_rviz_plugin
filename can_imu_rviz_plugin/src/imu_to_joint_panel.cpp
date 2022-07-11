@@ -26,6 +26,28 @@ namespace imu_to_joint_rviz_plugin {
         while (flag_thread_1_status == 1)
         {
             // ROS_INFO("Start_listen");
+            if((reclen=VCI_Receive(VCI_USBCAN2,0,0,rec,3000,100))>0)//调用接收函数，如果有数据，进行数据处理显示。
+            {
+                for(j=0;j<reclen;j++)
+                {
+                    imutojont->vci_obj_process(rec[j]);
+                }
+            }
+        }
+        ROS_INFO("thread_1 run thread exit\n");//退出接收线程	
+	    pthread_exit(NULL);
+   
+    }
+
+    void* thread_channel_2_receive(void* param){
+        ImuToJointPanel *imutojont = (ImuToJointPanel*)param;
+        int i,j;
+        int ind = 0, reclen = 0, count = 0;
+        ROS_INFO("imutojont->flag_thread_2_status : %d", flag_thread_2_status);
+        VCI_CAN_OBJ rec[3000];
+        while (flag_thread_2_status == 1)
+        {
+            // ROS_INFO("Start_listen");
             if((reclen=VCI_Receive(VCI_USBCAN2,0,1,rec,3000,100))>0)//调用接收函数，如果有数据，进行数据处理显示。
             {
                 for(j=0;j<reclen;j++)
@@ -34,13 +56,8 @@ namespace imu_to_joint_rviz_plugin {
                 }
             }
         }
-        ROS_INFO("run thread exit\n");//退出接收线程	
+        ROS_INFO("thread_2 run thread exit\n");//退出接收线程	
 	    pthread_exit(NULL);
-   
-    }
-
-    void* thread_channel_2_receive(void* param){
-
     }
 
     ImuToJointPanel::ImuToJointPanel(QWidget *parent)
@@ -201,7 +218,7 @@ namespace imu_to_joint_rviz_plugin {
                 imu_euler_msg.Pitch = imu_pitch;
                 imu_euler_msg.Yaw = imu_yaw;
                 euler_msg_process(imu_euler_msg);
-                ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);
+                // ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);/
                  if (sensor_iterator->header.seq == 2){
                     geometry_msgs::Quaternion quat = tf::createQuaternionMsgFromRollPitchYaw(imu_roll, imu_pitch, imu_yaw);
                     sensor_iterator->orientation = quat;
@@ -284,8 +301,13 @@ namespace imu_to_joint_rviz_plugin {
             ROS_INFO("status_thread_1 : %d", status_thread_1);
         }
         else {ROS_ERROR("Channel 1 is not open yet!!");}
-        if(flag_channel_2_open == 1){flag_thread_2_status = 1;}
+        
+        if(flag_channel_2_open == 1){flag_thread_2_status = 1;
+            int status_thread_2 = pthread_create(&threadid_2, NULL, thread_channel_2_receive, (void*)this);
+            ROS_INFO("status_thread_1 : %d", status_thread_2);
+        }
         else{ROS_ERROR("Channel 2 is not open yet!!");}
+        
         if(flag_channel_2_open == 1 && flag_channel_1_open == 1)
         ROS_WARN("Can Receive On");
     }
