@@ -35,10 +35,10 @@ namespace imu_to_joint_rviz_plugin {
     Q_OBJECT
     public:
         explicit ImuToJointPanel(QWidget *parent = 0);
+        int channel_select = 0;
 
     public Q_SLOTS:
         void vci_obj_process(VCI_CAN_OBJ vci_can_obj);
-        int channel_select = 0;
 
     protected Q_SLOTS:
         void qt_layout_init();
@@ -53,6 +53,7 @@ namespace imu_to_joint_rviz_plugin {
         float euler_to_radian(float euler);
         void checkTest();
         void checkSubLoad();
+        void checkChannel();
         void open_can_device();
         void close_can_device();
         void can_device_config_init(int Baud);

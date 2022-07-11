@@ -39,7 +39,6 @@ namespace imu_to_joint_rviz_plugin {
         }
         ROS_INFO("run thread exit\n");//退出接收线程	
 	    pthread_exit(NULL);
-   
     }
 
     ImuToJointPanel::ImuToJointPanel(QWidget *parent)
@@ -146,6 +145,10 @@ namespace imu_to_joint_rviz_plugin {
         connect(button_imu_start_listen, SIGNAL(clicked()), this, SLOT(imu_start_listen()));
         // 单个imu接收测试
         connect(checkbox_test, SIGNAL(clicked(bool)), this, SLOT(checkTest()));
+        // 使用自身can接收，还是使用话题订阅
+        connect(checkbox_sub_or_load, SIGNAL(clicked(bool)), this, SLOT(checkSubLoad()));
+        // 通道选择
+        connect(checkbox_channel_select, SIGNAL(clicked(bool)), this, SLOT(checkChannel()));
     }
 
     // can_receive to msg
@@ -220,15 +223,6 @@ namespace imu_to_joint_rviz_plugin {
         // ROS_INFO("\n");
     }
 
-    int ImuToJointPanel::byte_to_short(BYTE H_data, BYTE L_data){
-         short temp = 0;
-         temp = temp |H_data;
-         temp = temp << 8;
-         temp = temp | L_data;
-        //  ROS_INFO("temp: %d", temp);
-         return (int)temp;
-    }
-
     // 用于话题接收处理数据
     void ImuToJointPanel::euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg){
          if(flag_sub_or_load == true){
@@ -280,21 +274,33 @@ namespace imu_to_joint_rviz_plugin {
         }
     }
 
+    // 开启线程接收can消息
     void ImuToJointPanel::can_start_listen(){
-        if(flag_channel_1_open == 1){
+        if (flag_thread_status == 1)
+        {
+            ROS_WARN("Thread already open !!");
+            return;
+        }
+        if(flag_channel_1_open == 1 && channel_select == 0){
             flag_thread_status = 1;
-            int status_thread = pthread_create(&threadid, NULL, thread_channel_1_receive, (void*)this);
+            int status_thread = pthread_create(&threadid, NULL, thread_channel_receive, (void*)this);
+            ROS_INFO("status_thread : %d", status_thread);
+        }
+        else {ROS_ERROR("Channel 1 is not open yet!!");return;}
+
+        if(flag_channel_2_open == 1 && channel_select == 1)
+        {
+            flag_thread_status = 1;
+            int status_thread = pthread_create(&threadid, NULL, thread_channel_receive, (void*)this);
             ROS_INFO("status_thread_1 : %d", status_thread);
         }
-        else {ROS_ERROR("Channel 1 is not open yet!!");}
-
-        if(flag_channel_2_open == 1 && flag_channel_1_open == 1)
+        else {ROS_ERROR("Channel 2 is not open yet!!");return;}
         ROS_WARN("Can Receive On");
+        return;
     }
 
     void ImuToJointPanel::can_stop_listen(){
         flag_thread_status = 0;
-        // pthread_join(threadid_2,NULL);//等待线程关闭。
         ROS_WARN("Can Receive Off");
     }
 
@@ -374,6 +380,17 @@ namespace imu_to_joint_rviz_plugin {
 
     void ImuToJointPanel::checkSubLoad(){
         flag_sub_or_load = checkbox_sub_or_load->isChecked();
+    }
+
+    void ImuToJointPanel::checkChannel(){
+        if (checkbox_channel_select->isChecked())
+        {
+            // 通道2
+            channel_select = 1;
+        }else{
+            // 通道1
+            channel_select = 0;
+        }
     }
 
     void ImuToJointPanel::joint_state_pub()
@@ -565,6 +582,16 @@ namespace imu_to_joint_rviz_plugin {
         float radians = M_PI / 180 * euler;
         return radians;
     }
+
+    int ImuToJointPanel::byte_to_short(BYTE H_data, BYTE L_data){
+         short temp = 0;
+         temp = temp |H_data;
+         temp = temp << 8;
+         temp = temp | L_data;
+        //  ROS_INFO("temp: %d", temp);
+         return (int)temp;
+    }
+
 
     // spin for subscribing
     void ImuToJointPanel::startSpin() {
