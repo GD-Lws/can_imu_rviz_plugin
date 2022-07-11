@@ -27,11 +27,10 @@
 #include "controlcan.h"
 
 namespace imu_to_joint_rviz_plugin {
-    static void* thread_channel_1_receive(void *param);//接收线程。
-    static int flag_thread_2_status, flag_thread_1_status;
+    static void* thread_channel_receive(void *param);//接收线程。
+    static int flag_thread_status;
     static int origin_imu_id = 79, right_thigh_id = 79, left_thigh_id = 79, right_shank_id = 79, left_shank_id = 79;
 
-    void* thread_channel_2_receive(void *param);//接收线程。
     class ImuToJointPanel : public rviz::Panel {
     Q_OBJECT
     public:
@@ -39,8 +38,10 @@ namespace imu_to_joint_rviz_plugin {
 
     public Q_SLOTS:
         void vci_obj_process(VCI_CAN_OBJ vci_can_obj);
+        int channel_select = 0;
 
     protected Q_SLOTS:
+        void qt_layout_init();
         void euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg);
         void imu_id_set();
         static void startSpin(); // spin for sub
@@ -64,14 +65,14 @@ namespace imu_to_joint_rviz_plugin {
     protected:
         QLineEdit *editor_origin_imu,*editor_right_thigh_imu,*editor_left_thigh_imu,*editor_right_shank_imu,*editor_left_shank_imu;
         QPushButton *button_imu_id_set, *button_imu_start_listen, *button_can_device_open, *button_can_device_close, *button_can_start_listen, *button_can_stop_listen;
-        QCheckBox *checkbox_test, *checkbox_sub_or_load;
+        QCheckBox *checkbox_test, *checkbox_sub_or_load, *checkbox_channel_select;
         ros::NodeHandle nh_;
         ros::Publisher pub_joint_state_, pub_euler_imu;
         ros::Publisher pub_joint_origin_imu, pub_joint_r_shank_imu, pub_joint_l_shank_imu, pub_joint_r_thigh_imu, pub_joint_l_thigh_imu;
         ros::Subscriber sub_imu_msg_;
         // Y R P r_hip,l_hip,r_knee,l_knee
         VCI_INIT_CONFIG can_device_config;
-        pthread_t threadid_1, threadid_2;
+        pthread_t threadid;
         float joint_position_euler_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         float joint_position_offset_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         std::string joint_name_array[12] = {"r_hip_yaw_joint", "r_hip_roll_joint", "r_hip_pitch_joint",

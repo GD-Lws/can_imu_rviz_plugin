@@ -17,16 +17,19 @@
 #include "imu_to_joint_panel.h"
 
 namespace imu_to_joint_rviz_plugin {
-     static void* thread_channel_1_receive(void* param){
+     static void* thread_channel_receive(void* param){
         ImuToJointPanel *imutojont = (ImuToJointPanel*)param;
         int i,j;
         int ind = 0, reclen = 0, count = 0;
-        ROS_INFO("imutojont->flag_thread_1_status : %d", flag_thread_1_status);
+        ROS_INFO("flag_thread_status : %d", flag_thread_status);
+        int channel_selsect = imutojont->channel_select;
+        ROS_INFO("channel_selsect : %d", channel_selsect);
+
         VCI_CAN_OBJ rec[3000];
-        while (flag_thread_1_status == 1)
+        while (flag_thread_status == 1)
         {
             // ROS_INFO("Start_listen");
-            if((reclen=VCI_Receive(VCI_USBCAN2,0,0,rec,3000,100))>0)//调用接收函数，如果有数据，进行数据处理显示。
+            if((reclen=VCI_Receive(VCI_USBCAN2,0,channel_selsect,rec,3000,100))>0)//调用接收函数，如果有数据，进行数据处理显示。
             {
                 for(j=0;j<reclen;j++)
                 {
@@ -34,30 +37,9 @@ namespace imu_to_joint_rviz_plugin {
                 }
             }
         }
-        ROS_INFO("thread_1 run thread exit\n");//退出接收线程	
+        ROS_INFO("run thread exit\n");//退出接收线程	
 	    pthread_exit(NULL);
    
-    }
-
-    void* thread_channel_2_receive(void* param){
-        ImuToJointPanel *imutojont = (ImuToJointPanel*)param;
-        int i,j;
-        int ind = 0, reclen = 0, count = 0;
-        ROS_INFO("imutojont->flag_thread_2_status : %d", flag_thread_2_status);
-        VCI_CAN_OBJ rec[3000];
-        while (flag_thread_2_status == 1)
-        {
-            // ROS_INFO("Start_listen");
-            if((reclen=VCI_Receive(VCI_USBCAN2,0,1,rec,3000,100))>0)//调用接收函数，如果有数据，进行数据处理显示。
-            {
-                for(j=0;j<reclen;j++)
-                {
-                    imutojont->vci_obj_process(rec[j]);
-                }
-            }
-        }
-        ROS_INFO("thread_2 run thread exit\n");//退出接收线程	
-	    pthread_exit(NULL);
     }
 
     ImuToJointPanel::ImuToJointPanel(QWidget *parent)
@@ -72,8 +54,19 @@ namespace imu_to_joint_rviz_plugin {
         pub_joint_r_thigh_imu = nh_.advertise<sensor_msgs::Imu>("r_thingh_Imu_pub",1);
         pub_joint_l_thigh_imu = nh_.advertise<sensor_msgs::Imu>("l_thingh_Imu_pub",1);
         pub_euler_imu = nh_.advertise<can_imu_lws::IMU_Euler_msg>("imu_euler_test",1);
+        
+        qt_layout_init();
+      /*  int pthread_create(
+                 pthread_t *restrict tidp,   //新创建的线程ID指向的内存单元。
+                 const pthread_attr_t *restrict attr,  //线程属性，默认为NULL
+                 void *(*start_rtn)(void *), //新创建的线程从start_rtn函数的地址开始运行
+                 void *restrict arg //默认为NULL。若上述函数需要参数，将参数放入结构中并将地址作为arg传入。
+                  );*/
+        // int status_thread_2 = pthread_create(&threadid_2, NULL, (thread_channel_2_receive), this);
+        flag_thread_status = 0;
+    }
 
-                                    
+    void ImuToJointPanel::qt_layout_init(){
         QVBoxLayout *layout_root = new QVBoxLayout;
         layout_root->addWidget(new QLabel("imu_msg_to_joint_state"));
 
@@ -128,6 +121,8 @@ namespace imu_to_joint_rviz_plugin {
         layout_checkBox->addWidget(checkbox_test);
         checkbox_sub_or_load = new QCheckBox("Sub_or_Load");
         layout_checkBox->addWidget(checkbox_sub_or_load);
+        checkbox_channel_select = new QCheckBox("Channel_Select");
+        layout_checkBox->addWidget(checkbox_channel_select);
         layout_root->addLayout(layout_checkBox);
         
         button_imu_id_set = new QPushButton("Imu_ID_Set");
@@ -151,16 +146,6 @@ namespace imu_to_joint_rviz_plugin {
         connect(button_imu_start_listen, SIGNAL(clicked()), this, SLOT(imu_start_listen()));
         // 单个imu接收测试
         connect(checkbox_test, SIGNAL(clicked(bool)), this, SLOT(checkTest()));
-
-      /*  int pthread_create(
-                 pthread_t *restrict tidp,   //新创建的线程ID指向的内存单元。
-                 const pthread_attr_t *restrict attr,  //线程属性，默认为NULL
-                 void *(*start_rtn)(void *), //新创建的线程从start_rtn函数的地址开始运行
-                 void *restrict arg //默认为NULL。若上述函数需要参数，将参数放入结构中并将地址作为arg传入。
-                  );*/
-        // int status_thread_2 = pthread_create(&threadid_2, NULL, (thread_channel_2_receive), this);
-        flag_thread_1_status = 0;
-        flag_thread_2_status = 0;
     }
 
     // can_receive to msg
@@ -296,25 +281,19 @@ namespace imu_to_joint_rviz_plugin {
     }
 
     void ImuToJointPanel::can_start_listen(){
-        if(flag_channel_1_open == 1){flag_thread_1_status = 1;
-            int status_thread_1 = pthread_create(&threadid_1, NULL, thread_channel_1_receive, (void*)this);
-            ROS_INFO("status_thread_1 : %d", status_thread_1);
+        if(flag_channel_1_open == 1){
+            flag_thread_status = 1;
+            int status_thread = pthread_create(&threadid, NULL, thread_channel_1_receive, (void*)this);
+            ROS_INFO("status_thread_1 : %d", status_thread);
         }
         else {ROS_ERROR("Channel 1 is not open yet!!");}
-        
-        if(flag_channel_2_open == 1){flag_thread_2_status = 1;
-            int status_thread_2 = pthread_create(&threadid_2, NULL, thread_channel_2_receive, (void*)this);
-            ROS_INFO("status_thread_1 : %d", status_thread_2);
-        }
-        else{ROS_ERROR("Channel 2 is not open yet!!");}
-        
+
         if(flag_channel_2_open == 1 && flag_channel_1_open == 1)
         ROS_WARN("Can Receive On");
     }
 
     void ImuToJointPanel::can_stop_listen(){
-        flag_thread_1_status = 0;
-        flag_thread_2_status = 0;
+        flag_thread_status = 0;
         // pthread_join(threadid_2,NULL);//等待线程关闭。
         ROS_WARN("Can Receive Off");
     }
