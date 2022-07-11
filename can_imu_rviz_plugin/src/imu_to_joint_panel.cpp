@@ -411,11 +411,10 @@ namespace imu_to_joint_rviz_plugin {
     }
 
     void ImuToJointPanel::test_joint_state(sensor_msgs::JointState &joint_state_msg){
-        joint_state_msg.position[0] = euler_to_radian(imu_current_list[0]);
-        joint_state_msg.position[1] = euler_to_radian(imu_current_list[1]);
-        joint_state_msg.position[2] = euler_to_radian(imu_current_list[2]);
+        joint_state_msg.position[0] = euler_to_radian(imu_current_list[0] - imu_euler_offset_array[0]);
+        joint_state_msg.position[1] = euler_to_radian(imu_current_list[1] - imu_euler_offset_array[1]);
+        joint_state_msg.position[2] = euler_to_radian(imu_current_list[2] - imu_euler_offset_array[2]);
         for(int i = 3; i < 12; i++){joint_state_msg.position[i] = 0;}
-
     }
 
     void ImuToJointPanel::set_joint_state(sensor_msgs::JointState &joint_state_msg){
@@ -461,9 +460,8 @@ namespace imu_to_joint_rviz_plugin {
 
     void ImuToJointPanel::imu_start_listen(){
         ROS_INFO("imu_start_listen");
-        if(flag_just_test == false){
-            set_joint_offset();
-        }
+        set_joint_offset();
+        set_imu_euler_offset();
         int flag_have_imu = 0;
         for(int i = 0; i < 5; i++)
         {
@@ -577,6 +575,12 @@ namespace imu_to_joint_rviz_plugin {
         }
     }
 
+    void ImuToJointPanel::set_imu_euler_offset(){
+        for (int i = 0; i < 15; i++)
+        {
+            imu_euler_offset_array[i] = imu_current_list[i];
+        }
+    }
     // 角度转弧度
     float ImuToJointPanel::euler_to_radian(float euler){
         float radians = M_PI / 180 * euler;

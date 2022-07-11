@@ -61,6 +61,7 @@ namespace imu_to_joint_rviz_plugin {
         void can_stop_listen();
         int byte_to_short(BYTE H_data, BYTE L_data);
         void euler_msg_process(can_imu_lws::IMU_Euler_msg euler_msg);
+        void set_imu_euler_offset();
 
 
     protected:
@@ -76,6 +77,7 @@ namespace imu_to_joint_rviz_plugin {
         pthread_t threadid;
         float joint_position_euler_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         float joint_position_offset_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float imu_euler_offset_array[15];
         std::string joint_name_array[12] = {"r_hip_yaw_joint", "r_hip_roll_joint", "r_hip_pitch_joint",
                             "r_knee_pitch_joint",
                             "r_ankle_pitch_joint", "r_ankle_roll_joint",
