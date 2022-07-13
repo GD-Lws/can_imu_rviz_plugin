@@ -85,6 +85,10 @@ namespace imu_to_joint_rviz_plugin {
         layout_can_device_control->addWidget(button_can_stop_listen);
         layout_root->addLayout(layout_can_device_control);
 
+        table_imuarray = new QTableWidget;
+        initImuTable();
+        layout_root->addWidget(table_imuarray);
+
         QHBoxLayout *layout_origin_imu = new QHBoxLayout;
         layout_origin_imu->addWidget(new QLabel("Origin_imu_id:"));
         editor_origin_imu = new QLineEdit;
@@ -149,6 +153,21 @@ namespace imu_to_joint_rviz_plugin {
         connect(checkbox_sub_or_load, SIGNAL(clicked(bool)), this, SLOT(checkSubLoad()));
         // 通道选择
         connect(checkbox_channel_select, SIGNAL(clicked(bool)), this, SLOT(checkChannel()));
+    }
+
+    void ImuToJointPanel::initImuTable(){
+        ROS_INFO("Initialize");
+        table_imuarray->clear();
+        table_imuarray->setRowCount(5);
+        table_imuarray->setColumnCount(5);
+        table_imuarray->setEditTriggers(QAbstractItemView::CurrentChanged);
+        table_imuarray->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        QStringList imu_msg_header;
+        QStringList joint_msg_header;
+        imu_msg_header << "Can_id" << "Yaw" << "Roll" << "Pitch" << "Length";
+        joint_msg_header << "Origin_imu/o_l" << "R_thigh_imu/r_t_l" << "L_thigh_imu/l_t_l" << "R_shank_imu/r_s_l" << "L_shank_imu/l_s_l";
+        table_imuarray->setHorizontalHeaderLabels(imu_msg_header);
+        table_imuarray->setVerticalHeaderLabels(joint_msg_header);
     }
 
     // can_receive to msg
@@ -483,6 +502,52 @@ namespace imu_to_joint_rviz_plugin {
     {
          ROS_INFO("imu_id_set");
          bool flag_have_text = false;
+         for (int i = 0; i < 5; i++)
+         {
+            float imu_can_id = 0;
+            QString item_string = table_imuarray->item(i, 0)->text() ;
+            if(item_string != "")
+            {
+                int get_id = item_string.toInt();
+                if(get_id >= 80 && can_id_array[get_id - 80])
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            origin_imu_id = get_id;imu_joint_status_array[0] = 1;
+                            ROS_INFO("Set_origin_imu_id ");
+                            break;
+                        case 1:
+                            right_thigh_id = get_id;imu_joint_status_array[1] = 1;
+                            ROS_INFO("Set_right_thigh_id ");
+                            break;
+                        case 2:
+                            right_thigh_id = get_id;imu_joint_status_array[2] = 1;
+                            ROS_INFO("Set_left_thigh_id");
+                            break;
+                        case 3:
+                            right_shank_id = get_id;imu_joint_status_array[3] = 1;
+                            ROS_INFO("Set_right_shank_id");
+                            break;
+                        case 4:
+                            left_shank_id = get_id;imu_joint_status_array[4] = 1;
+                            ROS_INFO("Set_left_shank_id ");
+                            break;
+                        default:
+                            break;
+                    }
+                }else{
+                    ROS_ERROR("ID_have_problem: %d",get_id);
+                }
+            }
+         }
+        ROS_WARN("Set_origin_id: %d, Set_Right_thingh_id: %d, Set_left_thingh_id: %d",origin_imu_id,right_thigh_id,left_thigh_id);
+        ROS_WARN("Set_right_shank_id: %d, Set_left_shank_id: %d \n",right_shank_id,left_shank_id);
+        ROS_WARN("Status_origin_id: %d, Status_Right_thingh_id: %d, Status_left_thingh_id: %d",imu_joint_status_array[0],imu_joint_status_array[1],imu_joint_status_array[2]);
+        ROS_WARN("Status_right_shank_id: %d, Status_left_shank_id: %d",imu_joint_status_array[3],imu_joint_status_array[4]);
+   
+         
+
         if (editor_origin_imu->text() != "")
         {
             int set_origin_imu_id = editor_origin_imu->text().toInt();

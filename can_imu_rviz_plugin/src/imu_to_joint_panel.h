@@ -42,6 +42,7 @@ namespace imu_to_joint_rviz_plugin {
 
     protected Q_SLOTS:
         void qt_layout_init();
+        void initImuTable();
         void euler_callback(const can_imu_lws::IMU_Euler_msg::ConstPtr &euler_msg);
         void imu_id_set();
         static void startSpin(); // spin for sub
@@ -68,6 +69,7 @@ namespace imu_to_joint_rviz_plugin {
         QLineEdit *editor_origin_imu,*editor_right_thigh_imu,*editor_left_thigh_imu,*editor_right_shank_imu,*editor_left_shank_imu;
         QPushButton *button_imu_id_set, *button_imu_start_listen, *button_can_device_open, *button_can_device_close, *button_can_start_listen, *button_can_stop_listen;
         QCheckBox *checkbox_test, *checkbox_sub_or_load, *checkbox_channel_select;
+        QTableWidget *table_imuarray;
         ros::NodeHandle nh_;
         ros::Publisher pub_joint_state_, pub_euler_imu;
         ros::Publisher pub_joint_origin_imu, pub_joint_r_shank_imu, pub_joint_l_shank_imu, pub_joint_r_thigh_imu, pub_joint_l_thigh_imu;
