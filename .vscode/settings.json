@@ -6,6 +6,7 @@
     "cmake.sourceDirectory": "${workspaceFolder}/can_imu_rviz_plugin",
     "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
-        "random": "cpp"
+        "random": "cpp",
+        "thread": "cpp"
     }
 }

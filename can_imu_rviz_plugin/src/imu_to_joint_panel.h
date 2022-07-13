@@ -66,7 +66,7 @@ namespace imu_to_joint_rviz_plugin {
 
 
     protected:
-        QLineEdit *editor_origin_imu,*editor_right_thigh_imu,*editor_left_thigh_imu,*editor_right_shank_imu,*editor_left_shank_imu;
+        // QLineEdit *editor_origin_imu,*editor_right_thigh_imu,*editor_left_thigh_imu,*editor_right_shank_imu,*editor_left_shank_imu;
         QPushButton *button_imu_id_set, *button_imu_start_listen, *button_can_device_open, *button_can_device_close, *button_can_start_listen, *button_can_stop_listen;
         QCheckBox *checkbox_test, *checkbox_sub_or_load, *checkbox_channel_select;
         QTableWidget *table_imuarray;
@@ -79,6 +79,8 @@ namespace imu_to_joint_rviz_plugin {
         pthread_t threadid;
         float joint_position_euler_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         float joint_position_offset_array[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float joint_rod_length_length[5];
+        float joint_center_mass_length[5];
         float imu_euler_offset_array[15];
         std::string joint_name_array[12] = {"r_hip_yaw_joint", "r_hip_roll_joint", "r_hip_pitch_joint",
                             "r_knee_pitch_joint",
