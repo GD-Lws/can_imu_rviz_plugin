@@ -22,7 +22,7 @@ namespace imu_to_joint_rviz_plugin {
         int i,j;
         int ind = 0, reclen = 0, count = 0;
         ROS_INFO("flag_thread_status : %d", flag_thread_status);
-        int channel_selsect = imutojont->channel_select;
+        int channel_selsect = channel_select;
         ROS_INFO("channel_selsect : %d", channel_selsect);
 
         VCI_CAN_OBJ rec[3000];
@@ -52,6 +52,7 @@ namespace imu_to_joint_rviz_plugin {
         pub_joint_l_shank_imu = nh_.advertise<sensor_msgs::Imu>("l_shank_Imu_pub",1);
         pub_joint_r_thigh_imu = nh_.advertise<sensor_msgs::Imu>("r_thingh_Imu_pub",1);
         pub_joint_l_thigh_imu = nh_.advertise<sensor_msgs::Imu>("l_thingh_Imu_pub",1);
+        // pub_people_x = nh_.advertise<float>("people_x_pub",1);
         pub_euler_imu = nh_.advertise<can_imu_lws::IMU_Euler_msg>("imu_euler_test",1);
         
         qt_layout_init();
@@ -68,6 +69,18 @@ namespace imu_to_joint_rviz_plugin {
     void ImuToJointPanel::qt_layout_init(){
         QVBoxLayout *layout_root = new QVBoxLayout;
         layout_root->addWidget(new QLabel("imu_msg_to_joint_state"));
+
+        QHBoxLayout *layout_checkBox = new QHBoxLayout;
+        checkbox_test = new QCheckBox("Just Test euler");
+        layout_checkBox->addWidget(checkbox_test);
+        checkbox_sub_or_load = new QCheckBox("Sub_or_Load");
+        layout_checkBox->addWidget(checkbox_sub_or_load);
+        checkbox_channel_select = new QCheckBox("Channel_Select");
+        layout_checkBox->addWidget(checkbox_channel_select);
+        layout_root->addLayout(layout_checkBox);
+        checkbox_channel_select->setCheckState(Qt::Unchecked);
+        checkbox_sub_or_load->setCheckState(Qt::Unchecked);
+        checkbox_test->setCheckState(Qt::Unchecked);
 
         QHBoxLayout *layout_can_device_init = new QHBoxLayout;
         button_can_device_open = new QPushButton("Can Device Open");
@@ -88,15 +101,6 @@ namespace imu_to_joint_rviz_plugin {
         table_imuarray = new QTableWidget;
         initImuTable();
         layout_root->addWidget(table_imuarray);
-
-        QHBoxLayout *layout_checkBox = new QHBoxLayout;
-        checkbox_test = new QCheckBox("Just Test euler");
-        layout_checkBox->addWidget(checkbox_test);
-        checkbox_sub_or_load = new QCheckBox("Sub_or_Load");
-        layout_checkBox->addWidget(checkbox_sub_or_load);
-        checkbox_channel_select = new QCheckBox("Channel_Select");
-        layout_checkBox->addWidget(checkbox_channel_select);
-        layout_root->addLayout(layout_checkBox);
         
         button_imu_id_set = new QPushButton("Imu_ID_Set");
         layout_root->addWidget(button_imu_id_set);
@@ -194,8 +198,9 @@ namespace imu_to_joint_rviz_plugin {
                 imu_euler_msg.imu_can_id = rec_can_id;
                 imu_euler_msg.Pitch = imu_pitch;
                 imu_euler_msg.Yaw = imu_yaw;
+                // ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);
+
                 euler_msg_process(imu_euler_msg);
-                // ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);/
                  if (sensor_iterator->header.seq == 2){
                     geometry_msgs::Quaternion quat = tf::createQuaternionMsgFromRollPitchYaw(imu_roll, imu_pitch, imu_yaw);
                     sensor_iterator->orientation = quat;
@@ -244,11 +249,11 @@ namespace imu_to_joint_rviz_plugin {
             int can_id_index = euler_msg.imu_can_id - 80;
             if (can_id_index < 10){can_id_array[can_id_index] = 1;}
             int start_index = 0;
-            if (euler_msg.imu_can_id == origin_imu_id){start_index = 0;}
-            else if (euler_msg.imu_can_id == right_thigh_id){start_index = 3;}
-            else if (euler_msg.imu_can_id == left_thigh_id){start_index = 6;}
-            else if (euler_msg.imu_can_id == right_shank_id){start_index = 9;}
-            else if (euler_msg.imu_can_id == left_shank_id){start_index = 12;}
+            if (euler_msg.imu_can_id == origin_imu_id){start_index = 0; if (flag_center_people == 0){flag_center_people++;}}
+            else if (euler_msg.imu_can_id == right_thigh_id){start_index = 3;if (flag_center_people == 1){flag_center_people = 3;}}
+            else if (euler_msg.imu_can_id == left_thigh_id){start_index = 6;if (flag_center_people == 1){flag_center_people = 2;}}
+            else if (euler_msg.imu_can_id == right_shank_id){start_index = 9;if (flag_center_people == 3){flag_center_people = 5;}}
+            else if (euler_msg.imu_can_id == left_shank_id){start_index = 12;if (flag_center_people == 2){flag_center_people = 4;}}
             else {
                 // ROS_WARN("%d is undefined ID was received", euler_msg->imu_can_id);
                 }
@@ -275,15 +280,13 @@ namespace imu_to_joint_rviz_plugin {
             int status_thread = pthread_create(&threadid, NULL, thread_channel_receive, (void*)this);
             ROS_INFO("status_thread : %d", status_thread);
         }
-        else {ROS_ERROR("Channel 1 is not open yet!!");return;}
-
-        if(flag_channel_2_open == 1 && channel_select == 1)
+        else if(flag_channel_2_open == 1 && channel_select == 1)
         {
             flag_thread_status = 1;
             int status_thread = pthread_create(&threadid, NULL, thread_channel_receive, (void*)this);
             ROS_INFO("status_thread_1 : %d", status_thread);
         }
-        else {ROS_ERROR("Channel 2 is not open yet!!");return;}
+        else {ROS_ERROR("Channel is not open yet!!");return;}
         ROS_WARN("Can Receive On");
         return;
     }
@@ -394,9 +397,23 @@ namespace imu_to_joint_rviz_plugin {
                             "l_knee_pitch_joint",
                             "l_ankle_pitch_joint", "l_ankle_roll_joint"};
         joint_state_msg.position = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        if(flag_center_people == 5)
+        {
+            float q_1 = imu_current_list[10];
+            float q_2 = imu_current_list[4];
+            float q_3 = imu_current_list[1];
+            float l_1 = joint_rod_length_length[3];
+            float l_2 = joint_rod_length_length[1];
+            float d_3 = joint_center_mass_length[0];
+            float x_position = l_1 * sin(q_1) + l_2 * sin(q_2) + d_3 * sin(q_3);
+            ROS_INFO("q_1: %f,q_2: %f, q_3: %f, l_1: %f, l_2: %f, d_3: %f", q_1, q_2, q_3, l_1, l_2, d_3);
+            ROS_WARN("x_position: %f", x_position);
+            flag_center_people = 0;
+        }
         if(flag_just_test == false){set_joint_state(joint_state_msg);}
         else{test_joint_state(joint_state_msg);}
         pub_joint_state_.publish(joint_state_msg);
+        
     }
 
     void ImuToJointPanel::test_joint_state(sensor_msgs::JointState &joint_state_msg){
@@ -471,7 +488,11 @@ namespace imu_to_joint_rviz_plugin {
     void ImuToJointPanel::imu_id_set()
     {
          ROS_INFO("imu_id_set");
-         bool flag_have_text = false;
+         for (int i = 0; i < 9; i++)
+         {
+            ROS_INFO("%d ", can_id_array[i]);
+         }
+         
          for (int i = 0; i < 5; i++)
          {
             int imu_can_id = 0;
@@ -486,7 +507,7 @@ namespace imu_to_joint_rviz_plugin {
             QString string_item_rod_length;
             QString string_item_center_mass;
             ROS_INFO("TEST i: %d", i);
-            if(imu_can_id != NULL){string_item_can_id = imu_item->text();}
+            if(imu_item != NULL){ string_item_can_id = imu_item->text();}
             if(length_item != NULL){string_item_rod_length = length_item->text();}
             if(center_mass_item != NULL){string_item_center_mass = center_mass_item->text();}
 
@@ -494,7 +515,7 @@ namespace imu_to_joint_rviz_plugin {
             {
                 int get_id = string_item_can_id.toInt();
                 ROS_INFO("get_id: %d", get_id);
-                if(get_id >= 80 && can_id_array[get_id - 80])
+                if(get_id >= 80 && can_id_array[get_id - 80] == 1)
                 {
                     switch (i)
                     {

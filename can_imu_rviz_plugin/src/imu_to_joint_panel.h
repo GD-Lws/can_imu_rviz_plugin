@@ -28,14 +28,13 @@
 
 namespace imu_to_joint_rviz_plugin {
     static void* thread_channel_receive(void *param);//接收线程。
-    static int flag_thread_status;
+    static int flag_thread_status = 0, channel_select = 0;
     static int origin_imu_id = 79, right_thigh_id = 79, left_thigh_id = 79, right_shank_id = 79, left_shank_id = 79;
 
     class ImuToJointPanel : public rviz::Panel {
     Q_OBJECT
     public:
         explicit ImuToJointPanel(QWidget *parent = 0);
-        int channel_select = 0;
 
     public Q_SLOTS:
         void vci_obj_process(VCI_CAN_OBJ vci_can_obj);
@@ -71,7 +70,7 @@ namespace imu_to_joint_rviz_plugin {
         QCheckBox *checkbox_test, *checkbox_sub_or_load, *checkbox_channel_select;
         QTableWidget *table_imuarray;
         ros::NodeHandle nh_;
-        ros::Publisher pub_joint_state_, pub_euler_imu;
+        ros::Publisher pub_joint_state_, pub_euler_imu, pub_people_x;
         ros::Publisher pub_joint_origin_imu, pub_joint_r_shank_imu, pub_joint_l_shank_imu, pub_joint_r_thigh_imu, pub_joint_l_thigh_imu;
         ros::Subscriber sub_imu_msg_;
         // Y R P r_hip,l_hip,r_knee,l_knee
@@ -90,6 +89,7 @@ namespace imu_to_joint_rviz_plugin {
                             "l_ankle_pitch_joint", "l_ankle_roll_joint"};
         int can_id_array[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         int imu_joint_status_array[5] = {0, 0, 0, 0, 0};
+        int flag_center_people = 0;
         // Y R P origin,right_thigh,left_thigh,right_shank,left_shank
         float imu_current_list[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         int flag_channel_1_open = 0, flag_channel_2_open = 0, flag_channel_1_start = 0, flag_channel_2_start = 0,flag_device_open = 0;
