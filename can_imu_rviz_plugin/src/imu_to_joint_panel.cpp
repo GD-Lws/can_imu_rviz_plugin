@@ -263,6 +263,11 @@ namespace imu_to_joint_rviz_plugin {
             imu_current_list[start_index + 2] = euler_msg.Pitch;
             if (flag_start_listen == true)
             {
+                for (int i = 0; i < 15; i++)
+                {
+                    ROS_INFO("imu_current_list[%d]: %f", i, imu_current_list[i]);
+                }
+                
                 joint_state_pub();
             }
         }
