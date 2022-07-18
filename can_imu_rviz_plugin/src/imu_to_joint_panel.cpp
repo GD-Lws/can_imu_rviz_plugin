@@ -198,6 +198,7 @@ namespace imu_to_joint_rviz_plugin {
                 imu_euler_msg.imu_can_id = rec_can_id;
                 imu_euler_msg.Pitch = imu_pitch;
                 imu_euler_msg.Yaw = imu_yaw;
+                imu_euler_msg.Roll = imu_roll;
                 // ROS_INFO("roll: %f, pitch: %f, yaw: %f", imu_roll, imu_pitch, imu_yaw);
 
                 euler_msg_process(imu_euler_msg);
@@ -263,11 +264,6 @@ namespace imu_to_joint_rviz_plugin {
             imu_current_list[start_index + 2] = euler_msg.Pitch;
             if (flag_start_listen == true)
             {
-                for (int i = 0; i < 15; i++)
-                {
-                    ROS_INFO("imu_current_list[%d]: %f", i, imu_current_list[i]);
-                }
-                
                 joint_state_pub();
             }
         }
@@ -404,9 +400,9 @@ namespace imu_to_joint_rviz_plugin {
         joint_state_msg.position = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         if(flag_center_people == 5)
         {
-            float q_1 = imu_current_list[10];
-            float q_2 = imu_current_list[4];
-            float q_3 = imu_current_list[1];
+            float q_1 = imu_current_list[10] - imu_euler_offset_array[10];
+            float q_2 = imu_current_list[4] - imu_euler_offset_array[4];
+            float q_3 = imu_current_list[1] - imu_euler_offset_array[1];
             float l_1 = joint_rod_length_length[3];
             float l_2 = joint_rod_length_length[1];
             float d_3 = joint_center_mass_length[0];
