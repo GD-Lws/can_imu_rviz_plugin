@@ -144,6 +144,95 @@ namespace imu_to_joint_rviz_plugin {
         table_imuarray->setVerticalHeaderLabels(joint_msg_header);
     }
 
+    void ImuToJointPanel::checkTest(){
+        flag_just_test = checkbox_test->isChecked();
+    }
+
+    void ImuToJointPanel::checkSubLoad(){
+        flag_sub_or_load = checkbox_sub_or_load->isChecked();
+    }
+
+    void ImuToJointPanel::checkChannel(){
+        if (checkbox_channel_select->isChecked())
+        {
+            // 通道2
+            channel_select = 1;
+        }else{
+            // 通道1
+            channel_select = 0;
+        }
+    }
+
+    void ImuToJointPanel::can_device_config_init(int Baud){
+        can_device_config.AccCode = 0;
+        can_device_config.AccMask=0xFFFFFFFF;
+        can_device_config.Filter=1;//接收所有帧
+        if (Baud == 500){
+            // 500K
+            can_device_config.Timing0=0x00;/*波特率500 Kbps*/
+            can_device_config.Timing1=0x1C;
+        }else if(Baud == 100)
+        {
+            // 100K
+            can_device_config.Timing0=0x04;/*波特率100 Kbps*/
+            can_device_config.Timing1=0x1C;
+        }else{
+            // 1M
+            can_device_config.Timing0=0x00;/*波特率1 Mbps*/
+            can_device_config.Timing1=0x14;
+        }
+       
+        can_device_config.Mode=0;//正常模式
+    }
+
+    void ImuToJointPanel::open_can_device(){
+        flag_device_open = VCI_OpenDevice(VCI_USBCAN2, 0, 0);
+        if (flag_device_open == 1)
+        {
+            ROS_WARN("Device open sucess!!");
+            can_device_config_init(1000);
+            flag_channel_1_open = VCI_InitCAN(VCI_USBCAN2, 0, 0, &can_device_config);
+            flag_channel_2_open = VCI_InitCAN(VCI_USBCAN2, 0, 1, &can_device_config);
+            if(flag_channel_1_open == 1){
+                ROS_WARN("Channel_1_open_sucess!!");
+                flag_channel_1_start = VCI_StartCAN(VCI_USBCAN2, 0, 0);
+            }else{
+                ROS_ERROR("Channel_1_open_failed");
+            }
+            if(flag_channel_2_open == 1){
+                ROS_WARN("Channel_2_open_sucess!!");
+                flag_channel_2_start = VCI_StartCAN(VCI_USBCAN2, 0, 1);
+            }else{
+                ROS_ERROR("Channel_2_open_failed");
+            }
+            if(flag_channel_1_start == 1){
+                ROS_WARN("Channel_1_start_sucess!!");
+            }else{
+                ROS_ERROR("Channel_1_start_failed");
+            }
+            if(flag_channel_2_start == 1){
+                ROS_WARN("Channel_2_start_sucess!!");
+            }else{
+                ROS_ERROR("Channel_2_start_failed");
+            }
+        }else{
+            ROS_ERROR("Device open failed!!");
+        }
+    };
+   
+    void ImuToJointPanel::close_can_device(){
+        if (flag_device_open == 1)
+        {
+            VCI_ResetCAN(VCI_USBCAN2, 0, 0);//复位CAN1通道。
+	        usleep(100000);//延时100ms。
+            VCI_ResetCAN(VCI_USBCAN2, 0, 1);//复位CAN2通道。
+            VCI_CloseDevice(VCI_USBCAN2,0);
+            ROS_WARN("The device has been shut down.");
+        }else{
+            ROS_WARN("The device is not started.");
+        }
+    };
+
     // can_receive to msg
     void ImuToJointPanel::vci_obj_process(VCI_CAN_OBJ vci_can_obj){
         int rec_can_id = vci_can_obj.ID;//ID
@@ -269,123 +358,6 @@ namespace imu_to_joint_rviz_plugin {
         }
     }
 
-    // 开启线程接收can消息
-    void ImuToJointPanel::can_start_listen(){
-        if (flag_thread_status == 1)
-        {
-            ROS_WARN("Thread already open !!");
-            return;
-        }
-        if(flag_channel_1_open == 1 && channel_select == 0){
-            flag_thread_status = 1;
-            int status_thread = pthread_create(&threadid, NULL, thread_channel_receive, (void*)this);
-            ROS_INFO("status_thread : %d", status_thread);
-        }
-        else if(flag_channel_2_open == 1 && channel_select == 1)
-        {
-            flag_thread_status = 1;
-            int status_thread = pthread_create(&threadid, NULL, thread_channel_receive, (void*)this);
-            ROS_INFO("status_thread_1 : %d", status_thread);
-        }
-        else {ROS_ERROR("Channel is not open yet!!");return;}
-        ROS_WARN("Can Receive On");
-        return;
-    }
-
-    void ImuToJointPanel::can_stop_listen(){
-        flag_thread_status = 0;
-        ROS_WARN("Can Receive Off");
-    }
-
-    void ImuToJointPanel::can_device_config_init(int Baud){
-        can_device_config.AccCode = 0;
-        can_device_config.AccMask=0xFFFFFFFF;
-        can_device_config.Filter=1;//接收所有帧
-        if (Baud == 500){
-            // 500K
-            can_device_config.Timing0=0x00;/*波特率500 Kbps*/
-            can_device_config.Timing1=0x1C;
-        }else if(Baud == 100)
-        {
-            // 100K
-            can_device_config.Timing0=0x04;/*波特率100 Kbps*/
-            can_device_config.Timing1=0x1C;
-        }else{
-            // 1M
-            can_device_config.Timing0=0x00;/*波特率1 Mbps*/
-            can_device_config.Timing1=0x14;
-        }
-       
-        can_device_config.Mode=0;//正常模式
-    }
-
-    void ImuToJointPanel::open_can_device(){
-        flag_device_open = VCI_OpenDevice(VCI_USBCAN2, 0, 0);
-        if (flag_device_open == 1)
-        {
-            ROS_WARN("Device open sucess!!");
-            can_device_config_init(1000);
-            flag_channel_1_open = VCI_InitCAN(VCI_USBCAN2, 0, 0, &can_device_config);
-            flag_channel_2_open = VCI_InitCAN(VCI_USBCAN2, 0, 1, &can_device_config);
-            if(flag_channel_1_open == 1){
-                ROS_WARN("Channel_1_open_sucess!!");
-                flag_channel_1_start = VCI_StartCAN(VCI_USBCAN2, 0, 0);
-            }else{
-                ROS_ERROR("Channel_1_open_failed");
-            }
-            if(flag_channel_2_open == 1){
-                ROS_WARN("Channel_2_open_sucess!!");
-                flag_channel_2_start = VCI_StartCAN(VCI_USBCAN2, 0, 1);
-            }else{
-                ROS_ERROR("Channel_2_open_failed");
-            }
-            if(flag_channel_1_start == 1){
-                ROS_WARN("Channel_1_start_sucess!!");
-            }else{
-                ROS_ERROR("Channel_1_start_failed");
-            }
-            if(flag_channel_2_start == 1){
-                ROS_WARN("Channel_2_start_sucess!!");
-            }else{
-                ROS_ERROR("Channel_2_start_failed");
-            }
-        }else{
-            ROS_ERROR("Device open failed!!");
-        }
-    };
-   
-    void ImuToJointPanel::close_can_device(){
-        if (flag_device_open == 1)
-        {
-            VCI_ResetCAN(VCI_USBCAN2, 0, 0);//复位CAN1通道。
-	        usleep(100000);//延时100ms。
-            VCI_ResetCAN(VCI_USBCAN2, 0, 1);//复位CAN2通道。
-            VCI_CloseDevice(VCI_USBCAN2,0);
-            ROS_WARN("The device has been shut down.");
-        }else{
-            ROS_WARN("The device is not started.");
-        }
-    };
-
-    void ImuToJointPanel::checkTest(){
-        flag_just_test = checkbox_test->isChecked();
-    }
-
-    void ImuToJointPanel::checkSubLoad(){
-        flag_sub_or_load = checkbox_sub_or_load->isChecked();
-    }
-
-    void ImuToJointPanel::checkChannel(){
-        if (checkbox_channel_select->isChecked())
-        {
-            // 通道2
-            channel_select = 1;
-        }else{
-            // 通道1
-            channel_select = 0;
-        }
-    }
-
     void ImuToJointPanel::joint_state_pub()
     {
         sensor_msgs::JointState joint_state_msg;
@@ -415,54 +387,6 @@ namespace imu_to_joint_rviz_plugin {
         else{test_joint_state(joint_state_msg);}
         pub_joint_state_.publish(joint_state_msg);
         
-    }
-
-    void ImuToJointPanel::test_joint_state(sensor_msgs::JointState &joint_state_msg){
-        joint_state_msg.position[0] = euler_to_radian(imu_current_list[0] - imu_euler_offset_array[0]);
-        joint_state_msg.position[1] = euler_to_radian(imu_current_list[1] - imu_euler_offset_array[1]);
-        joint_state_msg.position[2] = euler_to_radian(imu_current_list[2] - imu_euler_offset_array[2]);
-        for(int i = 3; i < 12; i++){joint_state_msg.position[i] = 0;}
-    }
-
-    void ImuToJointPanel::set_joint_state(sensor_msgs::JointState &joint_state_msg){
-        if (imu_joint_status_array[0] == 1 && imu_joint_status_array [1] == 1)
-        {
-            joint_position_euler_array[0] = imu_current_list[3] - imu_current_list[0] - joint_position_offset_array[0];
-            joint_position_euler_array[2] = imu_current_list[4] - imu_current_list[1] - joint_position_offset_array[1]; 
-            joint_position_euler_array[1] = imu_current_list[5] - imu_current_list[2] - joint_position_offset_array[2];
-            ROS_INFO("r_hip euler:%f , %f, %f ",joint_position_euler_array[0], joint_position_euler_array[1], joint_position_euler_array[2]);
-        }
-        // origin and left_thigh -> l_hip
-        if (imu_joint_status_array[0] == 1 && imu_joint_status_array[2] == 1)
-        {
-            joint_position_euler_array[6] = imu_current_list[6] - imu_current_list[0] - joint_position_offset_array[3];
-            joint_position_euler_array[8] = imu_current_list[7] - imu_current_list[1] - joint_position_offset_array[4]; 
-            joint_position_euler_array[7] = imu_current_list[8] - imu_current_list[2] - joint_position_offset_array[5];
-            ROS_INFO("l_hip euler:%f , %f, %f ",joint_position_euler_array[6], joint_position_euler_array[7], joint_position_euler_array[8]);
-        }
-        // right_thigh and right_shank -> r_knee
-        if (imu_joint_status_array[1] == 1 && imu_joint_status_array[3] == 1)
-        {
-            joint_position_euler_array[3] = imu_current_list[9] - imu_current_list[3] - joint_position_offset_array[6];
-            joint_position_euler_array[4] = imu_current_list[10] - imu_current_list[4] - joint_position_offset_array[7]; 
-            joint_position_euler_array[5] = imu_current_list[11] - imu_current_list[5] - joint_position_offset_array[8];
-            ROS_INFO("r_knee euler:%f , %f, %f ",joint_position_euler_array[3], joint_position_euler_array[4], joint_position_euler_array[5]);
-        }
-        // left_thigh and left_shank -> l_knee
-        if (imu_joint_status_array[2] == 1 && imu_joint_status_array[4] == 1)
-        {
-            joint_position_euler_array[9] = imu_current_list[12] - imu_current_list[6] - joint_position_offset_array[9] ;
-            joint_position_euler_array[10] = imu_current_list[13] - imu_current_list[7] - joint_position_offset_array[10]; 
-            joint_position_euler_array[11] = imu_current_list[14] - imu_current_list[8] - joint_position_offset_array[11];
-            ROS_INFO("l_knee euler:%f , %f, %f ",joint_position_euler_array[9], joint_position_euler_array[10], joint_position_euler_array[11]);
-        }
-        for(int i = 0; i < 12; i++){
-            joint_state_msg.position[i] = euler_to_radian(joint_position_euler_array[i]);
-        }
-        joint_state_msg.position[4] = 0;
-        joint_state_msg.position[5] = 0;
-        joint_state_msg.position[10] = 0;
-        joint_state_msg.position[11] = 0;
     }
 
     void ImuToJointPanel::imu_start_listen(){
@@ -618,7 +542,56 @@ namespace imu_to_joint_rviz_plugin {
             imu_euler_offset_array[i] = imu_current_list[i];
         }
     }
-    // 角度转弧度
+  
+
+    void ImuToJointPanel::test_joint_state(sensor_msgs::JointState &joint_state_msg){
+        joint_state_msg.position[0] = euler_to_radian(imu_current_list[0] - imu_euler_offset_array[0]);
+        joint_state_msg.position[1] = euler_to_radian(imu_current_list[1] - imu_euler_offset_array[1]);
+        joint_state_msg.position[2] = euler_to_radian(imu_current_list[2] - imu_euler_offset_array[2]);
+        for(int i = 3; i < 12; i++){joint_state_msg.position[i] = 0;}
+    }
+
+    void ImuToJointPanel::set_joint_state(sensor_msgs::JointState &joint_state_msg){
+        if (imu_joint_status_array[0] == 1 && imu_joint_status_array [1] == 1)
+        {
+            joint_position_euler_array[0] = imu_current_list[3] - imu_current_list[0] - joint_position_offset_array[0];
+            joint_position_euler_array[2] = imu_current_list[4] - imu_current_list[1] - joint_position_offset_array[1]; 
+            joint_position_euler_array[1] = imu_current_list[5] - imu_current_list[2] - joint_position_offset_array[2];
+            ROS_INFO("r_hip euler:%f , %f, %f ",joint_position_euler_array[0], joint_position_euler_array[1], joint_position_euler_array[2]);
+        }
+        // origin and left_thigh -> l_hip
+        if (imu_joint_status_array[0] == 1 && imu_joint_status_array[2] == 1)
+        {
+            joint_position_euler_array[6] = imu_current_list[6] - imu_current_list[0] - joint_position_offset_array[3];
+            joint_position_euler_array[8] = imu_current_list[7] - imu_current_list[1] - joint_position_offset_array[4]; 
+            joint_position_euler_array[7] = imu_current_list[8] - imu_current_list[2] - joint_position_offset_array[5];
+            ROS_INFO("l_hip euler:%f , %f, %f ",joint_position_euler_array[6], joint_position_euler_array[7], joint_position_euler_array[8]);
+        }
+        // right_thigh and right_shank -> r_knee
+        if (imu_joint_status_array[1] == 1 && imu_joint_status_array[3] == 1)
+        {
+            joint_position_euler_array[3] = imu_current_list[9] - imu_current_list[3] - joint_position_offset_array[6];
+            joint_position_euler_array[4] = imu_current_list[10] - imu_current_list[4] - joint_position_offset_array[7]; 
+            joint_position_euler_array[5] = imu_current_list[11] - imu_current_list[5] - joint_position_offset_array[8];
+            ROS_INFO("r_knee euler:%f , %f, %f ",joint_position_euler_array[3], joint_position_euler_array[4], joint_position_euler_array[5]);
+        }
+        // left_thigh and left_shank -> l_knee
+        if (imu_joint_status_array[2] == 1 && imu_joint_status_array[4] == 1)
+        {
+            joint_position_euler_array[9] = imu_current_list[12] - imu_current_list[6] - joint_position_offset_array[9] ;
+            joint_position_euler_array[10] = imu_current_list[13] - imu_current_list[7] - joint_position_offset_array[10]; 
+            joint_position_euler_array[11] = imu_current_list[14] - imu_current_list[8] - joint_position_offset_array[11];
+            ROS_INFO("l_knee euler:%f , %f, %f ",joint_position_euler_array[9], joint_position_euler_array[10], joint_position_euler_array[11]);
+        }
+        for(int i = 0; i < 12; i++){
+            joint_state_msg.position[i] = euler_to_radian(joint_position_euler_array[i]);
+        }
+        joint_state_msg.position[4] = 0;
+        joint_state_msg.position[5] = 0;
+        joint_state_msg.position[10] = 0;
+        joint_state_msg.position[11] = 0;
+    }
+  // 角度转弧度
     float ImuToJointPanel::euler_to_radian(float euler){
         float radians = M_PI / 180 * euler;
         return radians;
