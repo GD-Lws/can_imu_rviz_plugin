@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_imu_to_joint_rviz_plugin__ImuToJointPanel_t {
-    QByteArrayData data[36];
-    char stringdata0[564];
+    QByteArrayData data[39];
+    char stringdata0[604];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -66,7 +66,10 @@ QT_MOC_LITERAL(31, 484, 6), // "H_data"
 QT_MOC_LITERAL(32, 491, 6), // "L_data"
 QT_MOC_LITERAL(33, 498, 17), // "euler_msg_process"
 QT_MOC_LITERAL(34, 516, 26), // "can_imu_lws::IMU_Euler_msg"
-QT_MOC_LITERAL(35, 543, 20) // "set_imu_euler_offset"
+QT_MOC_LITERAL(35, 543, 20), // "set_imu_euler_offset"
+QT_MOC_LITERAL(36, 564, 14), // "av_msg_process"
+QT_MOC_LITERAL(37, 579, 17), // "Angular_Velocity*"
+QT_MOC_LITERAL(38, 597, 6) // "av_msg"
 
     },
     "imu_to_joint_rviz_plugin::ImuToJointPanel\0"
@@ -84,7 +87,8 @@ QT_MOC_LITERAL(35, 543, 20) // "set_imu_euler_offset"
     "can_start_listen\0can_stop_listen\0"
     "byte_to_short\0H_data\0L_data\0"
     "euler_msg_process\0can_imu_lws::IMU_Euler_msg\0"
-    "set_imu_euler_offset"
+    "set_imu_euler_offset\0av_msg_process\0"
+    "Angular_Velocity*\0av_msg"
 };
 #undef QT_MOC_LITERAL
 
@@ -94,7 +98,7 @@ static const uint qt_meta_data_imu_to_joint_rviz_plugin__ImuToJointPanel[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      23,   14, // methods
+      24,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -102,29 +106,30 @@ static const uint qt_meta_data_imu_to_joint_rviz_plugin__ImuToJointPanel[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,  129,    2, 0x0a /* Public */,
-       5,    0,  132,    2, 0x09 /* Protected */,
-       6,    0,  133,    2, 0x09 /* Protected */,
-       7,    1,  134,    2, 0x09 /* Protected */,
-      10,    0,  137,    2, 0x09 /* Protected */,
-      11,    0,  138,    2, 0x09 /* Protected */,
-      12,    0,  139,    2, 0x09 /* Protected */,
-      13,    1,  140,    2, 0x09 /* Protected */,
-      16,    1,  143,    2, 0x09 /* Protected */,
-      17,    0,  146,    2, 0x09 /* Protected */,
-      18,    0,  147,    2, 0x09 /* Protected */,
-      19,    1,  148,    2, 0x09 /* Protected */,
-      21,    0,  151,    2, 0x09 /* Protected */,
-      22,    0,  152,    2, 0x09 /* Protected */,
-      23,    0,  153,    2, 0x09 /* Protected */,
-      24,    0,  154,    2, 0x09 /* Protected */,
-      25,    0,  155,    2, 0x09 /* Protected */,
-      26,    1,  156,    2, 0x09 /* Protected */,
-      28,    0,  159,    2, 0x09 /* Protected */,
-      29,    0,  160,    2, 0x09 /* Protected */,
-      30,    2,  161,    2, 0x09 /* Protected */,
-      33,    1,  166,    2, 0x09 /* Protected */,
-      35,    0,  169,    2, 0x09 /* Protected */,
+       1,    1,  134,    2, 0x0a /* Public */,
+       5,    0,  137,    2, 0x09 /* Protected */,
+       6,    0,  138,    2, 0x09 /* Protected */,
+       7,    1,  139,    2, 0x09 /* Protected */,
+      10,    0,  142,    2, 0x09 /* Protected */,
+      11,    0,  143,    2, 0x09 /* Protected */,
+      12,    0,  144,    2, 0x09 /* Protected */,
+      13,    1,  145,    2, 0x09 /* Protected */,
+      16,    1,  148,    2, 0x09 /* Protected */,
+      17,    0,  151,    2, 0x09 /* Protected */,
+      18,    0,  152,    2, 0x09 /* Protected */,
+      19,    1,  153,    2, 0x09 /* Protected */,
+      21,    0,  156,    2, 0x09 /* Protected */,
+      22,    0,  157,    2, 0x09 /* Protected */,
+      23,    0,  158,    2, 0x09 /* Protected */,
+      24,    0,  159,    2, 0x09 /* Protected */,
+      25,    0,  160,    2, 0x09 /* Protected */,
+      26,    1,  161,    2, 0x09 /* Protected */,
+      28,    0,  164,    2, 0x09 /* Protected */,
+      29,    0,  165,    2, 0x09 /* Protected */,
+      30,    2,  166,    2, 0x09 /* Protected */,
+      33,    1,  171,    2, 0x09 /* Protected */,
+      35,    0,  174,    2, 0x09 /* Protected */,
+      36,    1,  175,    2, 0x09 /* Protected */,
 
  // slots: parameters
     QMetaType::Void, 0x80000000 | 3,    4,
@@ -150,6 +155,7 @@ static const uint qt_meta_data_imu_to_joint_rviz_plugin__ImuToJointPanel[] = {
     QMetaType::Int, QMetaType::UChar, QMetaType::UChar,   31,   32,
     QMetaType::Void, 0x80000000 | 34,    9,
     QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 37,   38,
 
        0        // eod
 };
@@ -185,6 +191,7 @@ void imu_to_joint_rviz_plugin::ImuToJointPanel::qt_static_metacall(QObject *_o, 
             if (_a[0]) *reinterpret_cast< int*>(_a[0]) = std::move(_r); }  break;
         case 21: _t->euler_msg_process((*reinterpret_cast< can_imu_lws::IMU_Euler_msg(*)>(_a[1]))); break;
         case 22: _t->set_imu_euler_offset(); break;
+        case 23: _t->av_msg_process((*reinterpret_cast< Angular_Velocity*(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -215,13 +222,13 @@ int imu_to_joint_rviz_plugin::ImuToJointPanel::qt_metacall(QMetaObject::Call _c,
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 23)
+        if (_id < 24)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 23;
+        _id -= 24;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 23)
+        if (_id < 24)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 23;
+        _id -= 24;
     }
     return _id;
 }

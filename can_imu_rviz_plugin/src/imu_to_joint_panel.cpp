@@ -17,6 +17,13 @@
 #include "imu_to_joint_panel.h"
 
 namespace imu_to_joint_rviz_plugin {
+    struct Angular_Velocity
+    {
+        int imu_can_id;
+        float angle_v_x;
+        float angle_v_y;
+        float angle_v_z;
+    };
      static void* thread_channel_receive(void* param){
         ImuToJointPanel *imutojont = (ImuToJointPanel*)param;
         int i,j;
@@ -262,6 +269,12 @@ namespace imu_to_joint_rviz_plugin {
                     sensor_iterator->angular_velocity.z = Wz;
                     sensor_iterator->header.seq = 1;
                 }
+                Angular_Velocity av_msg;
+                av_msg.angle_v_x = Wx;
+                av_msg.angle_v_y = Wy;
+                av_msg.angle_v_z = Wz;
+                av_msg.imu_can_id = rec_can_id;
+                // av_msg_process(av_msg);
             }else if ((int)vci_can_obj.Data[1] == 81)
             {
                 // 加速度输出
@@ -357,6 +370,22 @@ namespace imu_to_joint_rviz_plugin {
             }
         }
     }
+   
+    // 用于处理角速度输出    
+    void ImuToJointPanel::av_msg_process(Angular_Velocity* av_msg){
+        int start_index = 0;
+        if (av_msg->imu_can_id == origin_imu_id){start_index = 0;}
+        else if (av_msg->imu_can_id == right_thigh_id){start_index = 3;}
+        else if (av_msg->imu_can_id == left_thigh_id){start_index = 6;}
+        else if (av_msg->imu_can_id == right_shank_id){start_index = 9;}
+        else if (av_msg->imu_can_id == left_shank_id){start_index = 12;}
+        else {
+            // ROS_WARN("%d is undefined ID was received", euler_msg->imu_can_id);
+            }
+        imu_current_av_list[start_index] = av_msg->angle_v_x;
+        imu_current_av_list[start_index + 1] = av_msg->angle_v_y;
+        imu_current_av_list[start_index + 2] = av_msg->angle_v_z; 
+    }
 
     void ImuToJointPanel::joint_state_pub()
     {
@@ -381,6 +410,10 @@ namespace imu_to_joint_rviz_plugin {
             float x_position = l_1 * sin(q_1) + l_2 * sin(q_2) + d_3 * sin(q_3);
             ROS_INFO("q_1: %f,q_2: %f, q_3: %f, l_1: %f, l_2: %f, d_3: %f", q_1, q_2, q_3, l_1, l_2, d_3);
             ROS_WARN("x_position: %f", x_position);
+            float q_1_ = imu_current_av_list[9];
+            float q_2_ = imu_current_av_list[3];
+            float q_3_ = imu_current_av_list[0];
+            float x_acclear = l_1*cos(q_1)*q_1_ + l_1*cos(q_2)*q_2_ + d_3*cos(q_3)*q_3_;
             flag_center_people = 0;
         }
         if(flag_just_test == false){set_joint_state(joint_state_msg);}
@@ -543,7 +576,6 @@ namespace imu_to_joint_rviz_plugin {
         }
     }
   
-
     void ImuToJointPanel::test_joint_state(sensor_msgs::JointState &joint_state_msg){
         joint_state_msg.position[0] = euler_to_radian(imu_current_list[0] - imu_euler_offset_array[0]);
         joint_state_msg.position[1] = euler_to_radian(imu_current_list[1] - imu_euler_offset_array[1]);
