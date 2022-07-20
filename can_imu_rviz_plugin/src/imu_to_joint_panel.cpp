@@ -59,8 +59,9 @@ namespace imu_to_joint_rviz_plugin {
         pub_joint_l_shank_imu = nh_.advertise<sensor_msgs::Imu>("l_shank_Imu_pub",1);
         pub_joint_r_thigh_imu = nh_.advertise<sensor_msgs::Imu>("r_thingh_Imu_pub",1);
         pub_joint_l_thigh_imu = nh_.advertise<sensor_msgs::Imu>("l_thingh_Imu_pub",1);
-        // pub_people_x = nh_.advertise<float>("people_x_pub",1);
-        pub_euler_imu = nh_.advertise<can_imu_lws::IMU_Euler_msg>("imu_euler_test",1);
+        pub_x_position = nh_.advertise<float>("x_position_pub",1);
+        pub_x_acc = nh_.advertise<float>("x_acc_pub",1);
+
         
         qt_layout_init();
       /*  int pthread_create(
@@ -338,7 +339,6 @@ namespace imu_to_joint_rviz_plugin {
             imu_current_list[start_index] = euler_msg->Yaw;
             imu_current_list[start_index + 1] = euler_msg->Roll;
             imu_current_list[start_index + 2] = euler_msg->Pitch;
-            // pub_euler_imu.publish(imu_euler_msg);
             if (flag_start_listen == true)
             {
                 joint_state_pub();
@@ -416,6 +416,8 @@ namespace imu_to_joint_rviz_plugin {
             float x_acclear = l_1*cos(q_1)*q_1_ + l_1*cos(q_2)*q_2_ + d_3*cos(q_3)*q_3_;
             ROS_INFO("q_1_: %f,q_2_: %f, q_3_: %f", q_1_, q_2_, q_3_);
             ROS_WARN("x_acclear: %f", x_acclear);
+            pub_x_position.publish(x_position);
+            pub_x_acc.publish(x_acclear);
             flag_center_people = 0;
         }
         if(flag_just_test == false){set_joint_state(joint_state_msg);}
