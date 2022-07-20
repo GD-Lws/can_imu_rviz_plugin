@@ -414,6 +414,8 @@ namespace imu_to_joint_rviz_plugin {
             float q_2_ = imu_current_av_list[3];
             float q_3_ = imu_current_av_list[0];
             float x_acclear = l_1*cos(q_1)*q_1_ + l_1*cos(q_2)*q_2_ + d_3*cos(q_3)*q_3_;
+            ROS_INFO("q_1_: %f,q_2_: %f, q_3_: %f", q_1_, q_2_, q_3_);
+            ROS_WARN("x_acclear: %f", x_acclear);
             flag_center_people = 0;
         }
         if(flag_just_test == false){set_joint_state(joint_state_msg);}
