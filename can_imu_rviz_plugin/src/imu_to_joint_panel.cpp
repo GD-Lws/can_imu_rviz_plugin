@@ -51,16 +51,16 @@ namespace imu_to_joint_rviz_plugin {
     ImuToJointPanel::ImuToJointPanel(QWidget *parent)
             : rviz::Panel(parent),nh_(){
         pub_joint_state_ = nh_.advertise<sensor_msgs::JointState>("joint_states",1);
-        sub_imu_msg_ = nh_.subscribe<can_imu_lws::IMU_Euler_msg>("imu_euler_pub",100,
+        sub_imu_msg_ = nh_.subscribe<can_imu_lws::IMU_Euler_msg>("imu_euler_pub_",100,
                                     boost::bind(&ImuToJointPanel::euler_callback, this,_1));
 
-        pub_joint_origin_imu = nh_.advertise<sensor_msgs::Imu>("origin_Imu_pub",1);
-        pub_joint_r_shank_imu = nh_.advertise<sensor_msgs::Imu>("r_shank_Imu_pub",1);
-        pub_joint_l_shank_imu = nh_.advertise<sensor_msgs::Imu>("l_shank_Imu_pub",1);
-        pub_joint_r_thigh_imu = nh_.advertise<sensor_msgs::Imu>("r_thingh_Imu_pub",1);
-        pub_joint_l_thigh_imu = nh_.advertise<sensor_msgs::Imu>("l_thingh_Imu_pub",1);
-        pub_x_position = nh_.advertise<float>("x_position_pub",1);
-        pub_x_acc = nh_.advertise<float>("x_acc_pub",1);
+        pub_joint_origin_imu = nh_.advertise<sensor_msgs::Imu>("origin_Imu_pub_",1);
+        pub_joint_r_shank_imu = nh_.advertise<sensor_msgs::Imu>("r_shank_Imu_pub_",1);
+        pub_joint_l_shank_imu = nh_.advertise<sensor_msgs::Imu>("l_shank_Imu_pub_",1);
+        pub_joint_r_thigh_imu = nh_.advertise<sensor_msgs::Imu>("r_thingh_Imu_pub_",1);
+        pub_joint_l_thigh_imu = nh_.advertise<sensor_msgs::Imu>("l_thingh_Imu_pub_",1);
+        pub_x_position = nh_.advertise<float>("x_position_pub_",1);
+        pub_x_acc = nh_.advertise<float>("x_acc_pub_",1);
 
         
         qt_layout_init();
