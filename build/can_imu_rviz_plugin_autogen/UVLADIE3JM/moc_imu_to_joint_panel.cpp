@@ -22,7 +22,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_imu_to_joint_rviz_plugin__ImuToJointPanel_t {
     QByteArrayData data[39];
-    char stringdata0[604];
+    char stringdata0[630];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -68,8 +68,8 @@ QT_MOC_LITERAL(33, 498, 17), // "euler_msg_process"
 QT_MOC_LITERAL(34, 516, 26), // "can_imu_lws::IMU_Euler_msg"
 QT_MOC_LITERAL(35, 543, 20), // "set_imu_euler_offset"
 QT_MOC_LITERAL(36, 564, 14), // "av_msg_process"
-QT_MOC_LITERAL(37, 579, 17), // "Angular_Velocity*"
-QT_MOC_LITERAL(38, 597, 6) // "av_msg"
+QT_MOC_LITERAL(37, 579, 43), // "imu_to_joint_rviz_plugin::Ang..."
+QT_MOC_LITERAL(38, 623, 6) // "av_msg"
 
     },
     "imu_to_joint_rviz_plugin::ImuToJointPanel\0"
@@ -88,7 +88,8 @@ QT_MOC_LITERAL(38, 597, 6) // "av_msg"
     "byte_to_short\0H_data\0L_data\0"
     "euler_msg_process\0can_imu_lws::IMU_Euler_msg\0"
     "set_imu_euler_offset\0av_msg_process\0"
-    "Angular_Velocity*\0av_msg"
+    "imu_to_joint_rviz_plugin::Angular_Velocity*\0"
+    "av_msg"
 };
 #undef QT_MOC_LITERAL
 
@@ -191,7 +192,7 @@ void imu_to_joint_rviz_plugin::ImuToJointPanel::qt_static_metacall(QObject *_o, 
             if (_a[0]) *reinterpret_cast< int*>(_a[0]) = std::move(_r); }  break;
         case 21: _t->euler_msg_process((*reinterpret_cast< can_imu_lws::IMU_Euler_msg(*)>(_a[1]))); break;
         case 22: _t->set_imu_euler_offset(); break;
-        case 23: _t->av_msg_process((*reinterpret_cast< Angular_Velocity*(*)>(_a[1]))); break;
+        case 23: _t->av_msg_process((*reinterpret_cast< imu_to_joint_rviz_plugin::Angular_Velocity*(*)>(_a[1]))); break;
         default: ;
         }
     }

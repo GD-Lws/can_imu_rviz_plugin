@@ -24,6 +24,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/JointState.h>
 #include <can_imu_lws/IMU_Euler_msg.h>
+#include <can_imu_lws/X_Position_Acc_msg.h>
 #include "controlcan.h"
 
 namespace imu_to_joint_rviz_plugin {
@@ -63,7 +64,7 @@ namespace imu_to_joint_rviz_plugin {
         int byte_to_short(BYTE H_data, BYTE L_data);
         void euler_msg_process(can_imu_lws::IMU_Euler_msg euler_msg);
         void set_imu_euler_offset();
-        void av_msg_process(Angular_Velocity* av_msg);
+        void av_msg_process(imu_to_joint_rviz_plugin::Angular_Velocity *av_msg);
 
 
     protected:
@@ -72,7 +73,7 @@ namespace imu_to_joint_rviz_plugin {
         QCheckBox *checkbox_test, *checkbox_sub_or_load, *checkbox_channel_select;
         QTableWidget *table_imuarray;
         ros::NodeHandle nh_;
-        ros::Publisher pub_x_position, pub_x_acc;
+        ros::Publisher pub_x_position_acc;
         ros::Publisher pub_joint_state_;
         ros::Publisher pub_joint_origin_imu, pub_joint_r_shank_imu, pub_joint_l_shank_imu, pub_joint_r_thigh_imu, pub_joint_l_thigh_imu;
         ros::Subscriber sub_imu_msg_;

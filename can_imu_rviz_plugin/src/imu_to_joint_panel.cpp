@@ -59,8 +59,7 @@ namespace imu_to_joint_rviz_plugin {
         pub_joint_l_shank_imu = nh_.advertise<sensor_msgs::Imu>("l_shank_Imu_pub_",1);
         pub_joint_r_thigh_imu = nh_.advertise<sensor_msgs::Imu>("r_thingh_Imu_pub_",1);
         pub_joint_l_thigh_imu = nh_.advertise<sensor_msgs::Imu>("l_thingh_Imu_pub_",1);
-        pub_x_position = nh_.advertise<float>("x_position_pub_",1);
-        pub_x_acc = nh_.advertise<float>("x_acc_pub_",1);
+        pub_x_position_acc = nh_.advertise<can_imu_lws::X_Position_Acc_msg>("x_position_acc_pub_",1);
 
         
         qt_layout_init();
@@ -372,7 +371,7 @@ namespace imu_to_joint_rviz_plugin {
     }
    
     // 用于处理角速度输出    
-    void ImuToJointPanel::av_msg_process(Angular_Velocity* av_msg){
+    void ImuToJointPanel::av_msg_process(imu_to_joint_rviz_plugin::Angular_Velocity *av_msg){
         int start_index = 0;
         if (av_msg->imu_can_id == origin_imu_id){start_index = 0;}
         else if (av_msg->imu_can_id == right_thigh_id){start_index = 3;}
@@ -408,16 +407,27 @@ namespace imu_to_joint_rviz_plugin {
             float l_2 = joint_rod_length_length[1];
             float d_3 = joint_center_mass_length[0];
             float x_position = l_1 * sin(q_1) + l_2 * sin(q_2) + d_3 * sin(q_3);
-            ROS_INFO("q_1: %f,q_2: %f, q_3: %f, l_1: %f, l_2: %f, d_3: %f", q_1, q_2, q_3, l_1, l_2, d_3);
-            ROS_WARN("x_position: %f", x_position);
+            // ROS_INFO("q_1: %f,q_2: %f, q_3: %f, l_1: %f, l_2: %f, d_3: %f", q_1, q_2, q_3, l_1, l_2, d_3);
+            // ROS_WARN("x_position: %f", x_position);
             float q_1_ = imu_current_av_list[9];
             float q_2_ = imu_current_av_list[3];
             float q_3_ = imu_current_av_list[0];
             float x_acclear = l_1*cos(q_1)*q_1_ + l_1*cos(q_2)*q_2_ + d_3*cos(q_3)*q_3_;
-            ROS_INFO("q_1_: %f,q_2_: %f, q_3_: %f", q_1_, q_2_, q_3_);
-            ROS_WARN("x_acclear: %f", x_acclear);
-            pub_x_position.publish(x_position);
-            pub_x_acc.publish(x_acclear);
+            // ROS_INFO("q_1_: %f,q_2_: %f, q_3_: %f", q_1_, q_2_, q_3_);
+            // ROS_WARN("x_acclear: %f", x_acclear);
+            can_imu_lws::X_Position_Acc_msg x_p_a_msg;
+            x_p_a_msg.l_1 = l_1;
+            x_p_a_msg.l_2 = l_2;
+            x_p_a_msg.d_3 = d_3;
+            x_p_a_msg.q_1 = q_1;
+            x_p_a_msg.q_1_ = q_1_;
+            x_p_a_msg.q_2 = q_2;
+            x_p_a_msg.q_2_ = q_2_;
+            x_p_a_msg.q_3 = q_3;
+            x_p_a_msg.q_3_ = q_3_;
+            x_p_a_msg.x_pos = x_position;
+            x_p_a_msg.x_acc = x_acclear;
+            pub_x_position_acc.publish(x_p_a_msg);
             flag_center_people = 0;
         }
         if(flag_just_test == false){set_joint_state(joint_state_msg);}

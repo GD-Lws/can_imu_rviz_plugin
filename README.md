@@ -28,11 +28,10 @@
 |    joint_states     | 用于rviz的关节显示   | 2022/7/20 |
 |    origin_Imu_pub_     | 腰部imu数据      | 2022/7/20 |
 |    r_shank_Imu_pub_     | 右大腿imu数据     | 2022/7/20 |
-|    l_shank_Imu_pub_     | 左大腿imu数据度   | 2022/7/20 |
+|    l_shank_Imu_pub_     | 左大腿imu数据   | 2022/7/20 |
 |    r_thingh_Imu_pub_     | 右小腿imu数据   | 2022/7/20 |
 |    l_thingh_Imu_pub_     | 左小腿imu数据      | 2022/7/20 |
-|    x_position_pub_     | 质心x的位置      | 2022/7/20 |
-|    x_acc_pub_     | 质心x的加速度      | 2022/7/20 |
+|    x_position_acc_pub_     | 质心x的位置and加速度      | 2022/7/21 |
 
 ### Sub
 |   Topic    | 功能  |  回调函数  |

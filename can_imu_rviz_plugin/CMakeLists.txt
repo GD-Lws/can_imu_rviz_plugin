@@ -1,10 +1,8 @@
-## BEGIN_TUTORIAL
-## This CMakeLists.txt file for rviz_plugin_tutorials builds both the MultiNaviGoalsPanel tutorial and the ImuDisplay tutorial.
-##
 ## First start with some standard catkin stuff.
 cmake_minimum_required(VERSION 2.8.3)
 project(can_imu_rviz_plugin)
-find_package(catkin REQUIRED COMPONENTS rviz geometry_msgs std_msgs actionlib_msgs sensor_msgs can_imu_lws)
+find_package(catkin REQUIRED COMPONENTS rviz geometry_msgs std_msgs actionlib_msgs sensor_msgs can_imu_lws message_generation)
+
 catkin_package(CATKIN_DEPENDS message_runtime)
 include_directories(${catkin_INCLUDE_DIRS} /home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/libcontrolcan)
 link_directories(${catkin_LIBRARY_DIRS} /home/lws/catkin_ws/src/can_imu_rviz_plugin/can_imu_rviz_plugin/src/libcontrolcan) 
@@ -39,6 +37,8 @@ set(SOURCE_FILES
   src/imu_to_joint_panel.cpp
   ${MOC_FILES}
 )
+
+## Generate messages in the 'msg' folder
 
 ## An rviz plugin is just a shared library, so here we declare the
 ## library to be called ``${PROJECT_NAME}`` (which is
