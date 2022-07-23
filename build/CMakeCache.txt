@@ -392,9 +392,6 @@ laser_geometry_DIR:PATH=/opt/ros/melodic/share/laser_geometry/cmake
 //Path to a library.
 lib:FILEPATH=/opt/ros/melodic/lib/librosconsole_bridge.so
 
-//The directory containing a CMake configuration file for libcontrolcan.
-libcontrolcan_DIR:PATH=libcontrolcan_DIR-NOTFOUND
-
 //The directory containing a CMake configuration file for map_msgs.
 map_msgs_DIR:PATH=/opt/ros/melodic/share/map_msgs/cmake
 
