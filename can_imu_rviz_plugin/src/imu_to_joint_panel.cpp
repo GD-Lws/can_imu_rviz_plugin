@@ -17,13 +17,6 @@
 #include "imu_to_joint_panel.h"
 
 namespace imu_to_joint_rviz_plugin {
-    struct Angular_Velocity
-    {
-        int imu_can_id;
-        float angle_v_x;
-        float angle_v_y;
-        float angle_v_z;
-    };
      static void* thread_channel_receive(void* param){
         ImuToJointPanel *imutojont = (ImuToJointPanel*)param;
         int i,j;
@@ -269,12 +262,11 @@ namespace imu_to_joint_rviz_plugin {
                     sensor_iterator->angular_velocity.z = Wz;
                     sensor_iterator->header.seq = 1;
                 }
-                Angular_Velocity av_msg;
-                av_msg.angle_v_x = Wx;
-                av_msg.angle_v_y = Wy;
-                av_msg.angle_v_z = Wz;
-                av_msg.imu_can_id = rec_can_id;
-                // av_msg_process(av_msg);
+                float av_msg[3];
+                av_msg[0] = Wx;
+                av_msg[1] = Wy;
+                av_msg[2] = Wz;
+                av_msg_process(rec_can_id ,av_msg);
             }else if ((int)vci_can_obj.Data[1] == 81)
             {
                 // 加速度输出
@@ -371,19 +363,19 @@ namespace imu_to_joint_rviz_plugin {
     }
    
     // 用于处理角速度输出    
-    void ImuToJointPanel::av_msg_process(imu_to_joint_rviz_plugin::Angular_Velocity *av_msg){
+    void ImuToJointPanel::av_msg_process(int imu_can_id, float av_msg[3]){
         int start_index = 0;
-        if (av_msg->imu_can_id == origin_imu_id){start_index = 0;}
-        else if (av_msg->imu_can_id == right_thigh_id){start_index = 3;}
-        else if (av_msg->imu_can_id == left_thigh_id){start_index = 6;}
-        else if (av_msg->imu_can_id == right_shank_id){start_index = 9;}
-        else if (av_msg->imu_can_id == left_shank_id){start_index = 12;}
+        if (imu_can_id == origin_imu_id){start_index = 0;}
+        else if (imu_can_id == right_thigh_id){start_index = 3;}
+        else if (imu_can_id == left_thigh_id){start_index = 6;}
+        else if (imu_can_id == right_shank_id){start_index = 9;}
+        else if (imu_can_id == left_shank_id){start_index = 12;}
         else {
             // ROS_WARN("%d is undefined ID was received", euler_msg->imu_can_id);
             }
-        imu_current_av_list[start_index] = av_msg->angle_v_x;
-        imu_current_av_list[start_index + 1] = av_msg->angle_v_y;
-        imu_current_av_list[start_index + 2] = av_msg->angle_v_z; 
+        imu_current_av_list[start_index] = av_msg[0];
+        imu_current_av_list[start_index + 1] = av_msg[1];
+        imu_current_av_list[start_index + 2] = av_msg[2]; 
     }
 
     void ImuToJointPanel::joint_state_pub()

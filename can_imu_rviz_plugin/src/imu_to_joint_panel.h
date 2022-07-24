@@ -28,7 +28,6 @@
 #include "controlcan.h"
 
 namespace imu_to_joint_rviz_plugin {
-    struct Angular_Velocity;
     static void* thread_channel_receive(void *param);//接收线程。
     static int flag_thread_status = 0, channel_select = 0;
     static int origin_imu_id = 79, right_thigh_id = 79, left_thigh_id = 79, right_shank_id = 79, left_shank_id = 79;
@@ -64,7 +63,7 @@ namespace imu_to_joint_rviz_plugin {
         int byte_to_short(BYTE H_data, BYTE L_data);
         void euler_msg_process(can_imu_lws::IMU_Euler_msg euler_msg);
         void set_imu_euler_offset();
-        void av_msg_process(imu_to_joint_rviz_plugin::Angular_Velocity *av_msg);
+        void av_msg_process(int imu_can_id, float av_msg[3]);
 
 
     protected:
